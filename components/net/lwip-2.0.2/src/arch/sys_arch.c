@@ -178,9 +178,9 @@ int lwip_system_init(void)
     else
         printf("netif_default == RT_NULL\n");
 #endif
-	rt_kprintf("lwIP-%d.%d.%d initialized!\n", LWIP_VERSION_MAJOR, LWIP_VERSION_MINOR, LWIP_VERSION_REVISION);
+    rt_kprintf("lwIP-%d.%d.%d initialized!\n", LWIP_VERSION_MAJOR, LWIP_VERSION_MINOR, LWIP_VERSION_REVISION);
 
-	return 0;
+    return 0;
 }
 INIT_COMPONENT_EXPORT(lwip_system_init);
 
