@@ -359,13 +359,16 @@ int wifi_default(void)
 
 static void wifi_usage(void)
 {
-    rt_kprintf("wifi wlan_dev - do the default wifi action\n");
+    rt_kprintf("wifi help     - Help information\n");
+    rt_kprintf("wifi cfg SSID PASSWORD - Setting your router AP ssid and pwd\n");
+    rt_kprintf("wifi          - do the default wifi action\n");
+    rt_kprintf("wifi wlan_dev scan\n");
     rt_kprintf("wifi wlan_dev join SSID PASSWORD\n");
-    rt_kprintf("wifi wlan_dev ap SSID [PASSWORD]\n");
-    rt_kprintf("wifi cfg SSID PASSWORD\n");
+    rt_kprintf("wifi wlan_dev ap SSID [PASSWORD]\n");    
     rt_kprintf("wifi wlan_dev up\n");
     rt_kprintf("wifi wlan_dev down\n");
     rt_kprintf("wifi wlan_dev rssi\n");
+    rt_kprintf("wifi wlan_dev status\n");
 }
 
 int wifi(int argc, char** argv)
