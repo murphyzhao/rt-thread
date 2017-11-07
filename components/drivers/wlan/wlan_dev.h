@@ -92,6 +92,14 @@ typedef enum
     WIFI_EVT_LINK_UP,
 }rt_wlan_event_t;
 
+typedef enum 
+{
+    RT_WLAN_UNINITED = 0,
+    RT_WLAN_INITED,
+    RT_WLAN_CONNECTED,
+    RT_WLAN_AP_MODE,
+} rt_wlan_status_t;
+
 /* wifi network information */
 struct rt_wlan_info
 {
@@ -130,6 +138,8 @@ struct rt_wlan_device
     rt_wlan_event_handler handler;
     void* user_data;
     int interface;
+
+    rt_wlan_status_t status;
 };
 
 /*

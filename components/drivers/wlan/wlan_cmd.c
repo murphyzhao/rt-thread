@@ -41,8 +41,12 @@ struct rt_wlan_info info;
 #define WIFI_SETTING_FN     "/appfs/setting.json"
 #endif
 
-#ifndef WIFI_DEVICE_NAME
-#define WIFI_DEVICE_NAME    "w0"
+#ifndef WIFI_DEVICE_STA_NAME
+#define WIFI_DEVICE_STA_NAME    "w0"
+#endif
+
+#ifndef WIFI_DEVICE_AP_NAME
+#define WIFI_DEVICE_AP_NAME    "ap"
 #endif
 
 #ifdef RT_USING_DFS
@@ -53,7 +57,12 @@ struct rt_wlan_info info;
 
 static char wifi_ssid[32]    = {0};
 static char wifi_key[32]     = {0};
+
+#ifdef WLAN_USING_STA
 static int network_mode      = WIFI_STATION;
+#elif defined WLAN_USING_AP
+static int network_mode      = WIFI_AP;
+#endif
 
 int wifi_get_mode(void)
 {
@@ -305,11 +314,25 @@ int wifi_default(void)
     wifi_read_cfg(WIFI_SETTING_FN);
 
     /* get wlan device */
-    wlan = (struct rt_wlan_device*)rt_device_find(WIFI_DEVICE_NAME);
-    if (!wlan)
+    if (network_mode == WIFI_STATION)
     {
-        rt_kprintf("no wlan:%s device\n", WIFI_DEVICE_NAME);
-        return -1;
+        /* get wlan device */
+        wlan = (struct rt_wlan_device*)rt_device_find(WIFI_DEVICE_STA_NAME);
+        if (!wlan)
+        {    
+            rt_kprintf("no wlan:%s device\n", WIFI_DEVICE_STA_NAME);
+            return -1;                        
+        }
+    }
+    else if (network_mode == WIFI_AP)
+    {
+        /* get wlan device */
+        wlan = (struct rt_wlan_device*)rt_device_find(WIFI_DEVICE_AP_NAME);
+        if (!wlan)
+        {                
+            rt_kprintf("no wlan:%s device\n", WIFI_DEVICE_AP_NAME);
+            return -1;                        
+        }
     }
 
     if (network_mode == WIFI_STATION)
@@ -474,33 +497,33 @@ int wifi(int argc, char** argv)
     else if (strcmp(argv[2], "ap") == 0)
     {
         rt_err_t result = RT_EOK;
-        struct rt_wlan_info *info;
+        // struct rt_wlan_info *info;
 
-        info = (struct rt_wlan_info*)rt_malloc(sizeof(struct rt_wlan_info));
+        // info = (struct rt_wlan_info*)rt_malloc(sizeof(struct rt_wlan_info));
         if (argc == 4)
         {
             // open soft-AP
-            rt_wlan_info_init(info, WIFI_AP, SECURITY_OPEN, argv[3]);
-            info->channel = 11;
+            rt_wlan_info_init(&info, WIFI_AP, SECURITY_OPEN, argv[3]);
+            info.channel = 11;
 
             result =rt_wlan_init(wlan, WIFI_AP);
             /* start soft ap */
-            result = rt_wlan_softap(wlan, info, NULL);
+            result = rt_wlan_softap(wlan, &info, NULL);
         }
         else if (argc == 5)
         {
             // WPA2 with password
-            rt_wlan_info_init(info, WIFI_AP, SECURITY_WPA2_AES_PSK, argv[3]);
-            info->channel = 11;
+            rt_wlan_info_init(&info, WIFI_AP, SECURITY_WPA2_AES_PSK, argv[3]);
+            info.channel = 11;
 
             result =rt_wlan_init(wlan, WIFI_AP);
             /* start soft ap */
-            result = rt_wlan_softap(wlan, info, argv[4]);
+            result = rt_wlan_softap(wlan, &info, argv[4]);
         }
         else
         {
             /* release information */
-            rt_free(info);
+            // rt_free(info);
 
             wifi_usage();
         }

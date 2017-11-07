@@ -36,6 +36,8 @@
 
 #define NIOCTL_SADDR    0x02
 
+rt_wlan_status_t wlan_status = RT_WLAN_UNINITED;
+
 void rt_wlan_info_init(struct rt_wlan_info* info, rt_wlan_mode_t mode, rt_wlan_security_t security, 
     char *ssid)
 {
