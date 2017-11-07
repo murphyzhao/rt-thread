@@ -38,22 +38,29 @@
 
 rt_wlan_status_t wlan_status = RT_WLAN_UNINITED;
 
-void rt_wlan_info_init(struct rt_wlan_info* info, rt_wlan_mode_t mode, rt_wlan_security_t security, 
+rt_err_t rt_wlan_info_init(struct rt_wlan_info* info, rt_wlan_mode_t mode, rt_wlan_security_t security, 
     char *ssid)
 {
-    if (info == RT_NULL) return ;
+    if (info == RT_NULL) return RT_ERROR;
 
     memset(info, 0x0, sizeof(struct rt_wlan_info));
     info->mode = mode;
     info->security = security;
     if (ssid)
     {
+        if ((0 == strlen((char*)ssid)) || (32 < strlen((char*)ssid)))
+        {
+            rt_kprintf("Warning: ssid is not allowed\n");
+            return RT_ERROR;
+        }
+            
         info->ssid = rt_malloc(strlen((char*)ssid) + 1);
         if (info->ssid)
         {
             strncpy((char*)info->ssid, (char*)ssid, strlen((char*)ssid) + 1);
         }
     }
+    return 0;
 }
 
 void rt_wlan_info_deinit(struct rt_wlan_info* info)

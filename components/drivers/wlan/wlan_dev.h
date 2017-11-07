@@ -145,7 +145,7 @@ struct rt_wlan_device
 /*
  * Wi-Fi Information APIs
  */
-void rt_wlan_info_init(struct rt_wlan_info* info, rt_wlan_mode_t mode, rt_wlan_security_t security, 
+rt_err_t rt_wlan_info_init(struct rt_wlan_info* info, rt_wlan_mode_t mode, rt_wlan_security_t security, 
     char *ssid);
 void rt_wlan_info_deinit(struct rt_wlan_info* info);
 

@@ -347,7 +347,11 @@ int wifi_default(void)
         }
 
         /* wifi station */
-        rt_wlan_info_init(info, WIFI_STATION, SECURITY_WPA2_MIXED_PSK, wifi_ssid);
+        result = rt_wlan_info_init(info, WIFI_STATION, SECURITY_WPA2_MIXED_PSK, wifi_ssid);
+        if (RT_EOK != result)
+        {
+            return 0;
+        }
         result =rt_wlan_init(wlan, WIFI_STATION);
         if (result == RT_EOK)
         {
@@ -366,7 +370,11 @@ int wifi_default(void)
             return -1;
         }
 
-        rt_wlan_info_init(info, WIFI_AP, SECURITY_WPA2_AES_PSK, wifi_ssid);
+        result = rt_wlan_info_init(info, WIFI_AP, SECURITY_WPA2_AES_PSK, wifi_ssid);
+        if (RT_EOK != result)
+        {
+            return 0;
+        }
         info->channel = 11;
 
         /* wifi soft-AP */
@@ -396,6 +404,7 @@ static void wifi_usage(void)
 
 int wifi(int argc, char** argv)
 {
+    rt_err_t result = RT_EOK;
     struct rt_wlan_device *wlan;
 
     if (argc == 1)
@@ -419,7 +428,7 @@ int wifi(int argc, char** argv)
         memset(wifi_key, 0x0, sizeof(wifi_key));
         rt_strncpy(wifi_key, argv[3], sizeof(wifi_key) - 1);
 
-        network_mode = WIFI_STATION;
+        // network_mode = WIFI_STATION;
 
         wifi_save_cfg(WIFI_SETTING_FN);
 
@@ -445,7 +454,11 @@ int wifi(int argc, char** argv)
         rt_wlan_init(wlan, WIFI_STATION);
 
         /* TODO: use easy-join to replace */
-        rt_wlan_info_init(&info, WIFI_STATION, SECURITY_WPA2_MIXED_PSK, argv[3]);
+        result = rt_wlan_info_init(&info, WIFI_STATION, SECURITY_WPA2_MIXED_PSK, argv[3]);
+        if (RT_EOK != result)
+        {
+            return 0;
+        }
         rt_wlan_connect(wlan, &info, argv[4]);
     }
     else if (strcmp(argv[2], "up") == 0)
@@ -503,7 +516,11 @@ int wifi(int argc, char** argv)
         if (argc == 4)
         {
             // open soft-AP
-            rt_wlan_info_init(&info, WIFI_AP, SECURITY_OPEN, argv[3]);
+            result = rt_wlan_info_init(&info, WIFI_AP, SECURITY_OPEN, argv[3]);
+            if (RT_EOK != result)
+            {
+                return 0;
+            }
             info.channel = 11;
 
             result =rt_wlan_init(wlan, WIFI_AP);
@@ -513,7 +530,11 @@ int wifi(int argc, char** argv)
         else if (argc == 5)
         {
             // WPA2 with password
-            rt_wlan_info_init(&info, WIFI_AP, SECURITY_WPA2_AES_PSK, argv[3]);
+            result = rt_wlan_info_init(&info, WIFI_AP, SECURITY_WPA2_AES_PSK, argv[3]);
+            if (RT_EOK != result)
+            {
+                return 0;
+            }
             info.channel = 11;
 
             result =rt_wlan_init(wlan, WIFI_AP);
@@ -524,7 +545,6 @@ int wifi(int argc, char** argv)
         {
             /* release information */
             // rt_free(info);
-
             wifi_usage();
         }
         
