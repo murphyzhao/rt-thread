@@ -24,7 +24,12 @@
 
 #include <rtthread.h>
 
+// extern int rtgui_thread_init(void);
+// extern int lcd_test(void);
+
 int main(int argc, char** argv)
-{   
+{
+    // lcd_test();
+    // rtgui_thread_init();
     return 0;
 }
