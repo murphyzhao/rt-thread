@@ -151,6 +151,6 @@ int rt_gui_demo_init(void)
     
     return 0;
 }
-INIT_APP_EXPORT(rt_gui_demo_init);
+// INIT_APP_EXPORT(rt_gui_demo_init);
 #endif
 #endif /* RT_USING_GUIENGINE */

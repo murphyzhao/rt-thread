@@ -71,4 +71,4 @@ int blink_init(void)
     if (tid != RT_NULL)
         rt_thread_startup(tid);
 }
-INIT_APP_EXPORT(blink_init);
+// INIT_APP_EXPORT(blink_init);

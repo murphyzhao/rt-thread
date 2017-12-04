@@ -57,7 +57,7 @@
 
 /* C++ features */
 
-/* RT_USING_CPLUSPLUS is not set */
+#define RT_USING_CPLUSPLUS
 
 /* Command shell */
 
@@ -107,14 +107,19 @@
 #define RT_USING_SERIAL
 /* RT_USING_CAN is not set */
 /* RT_USING_HWTIMER is not set */
-/* RT_USING_I2C is not set */
+#define RT_USING_I2C
+#define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
 #define RT_USING_MTD_NOR
 /* RT_USING_MTD_NAND is not set */
 /* RT_USING_RTC is not set */
-/* RT_USING_SDIO is not set */
+#define RT_USING_SDIO
 /* RT_USING_SPI is not set */
 /* RT_USING_WDT is not set */
+/* RT_USING_WIFI is not set */
+
+/* Using USB */
+
 /* RT_USING_USB_HOST is not set */
 /* RT_USING_USB_DEVICE is not set */
 
@@ -138,7 +143,21 @@
 
 /* RT-Thread UI Engine */
 
-/* RT_USING_GUIENGINE is not set */
+#define RT_USING_GUIENGINE
+#define RTGUI_NAME_MAX 16
+/* RTGUI_USING_TTF is not set */
+#define RTGUI_USING_FONT16
+#define RTGUI_USING_FONT12
+/* RTGUI_USING_FONTHZ is not set */
+/* RTGUI_IMAGE_XPM is not set */
+#define RTGUI_IMAGE_JPEG_NONE
+/* RTGUI_IMAGE_JPEG is not set */
+/* RTGUI_IMAGE_TJPGD is not set */
+#define RTGUI_IMAGE_PNG_NONE
+/* RTGUI_IMAGE_PNG is not set */
+/* RTGUI_IMAGE_LODEPNG is not set */
+/* RTGUI_IMAGE_BMP is not set */
+#define RTGUI_IMAGE_CONTAINER
 
 /* VBUS(Virtual Software BUS) */
 
@@ -149,7 +168,10 @@
 /* system packages */
 
 /* PKG_USING_PARTITION is not set */
+#define PKG_USING_PERSIMMON
+/* RT_USING_PERSIMMON_EXAMPLE is not set */
 /* PKG_USING_SQLITE is not set */
+/* PKG_USING_RTI is not set */
 
 /* IoT - internet of things */
 
@@ -159,22 +181,20 @@
 /* PKG_USING_WEBTERMINAL is not set */
 /* PKG_USING_CJSON is not set */
 /* PKG_USING_EZXML is not set */
-
-/* Marvell WiFi */
-
-/* PKG_USING_MARVELLWIFI is not set */
+/* PKG_USING_NANOPB is not set */
 
 /* security packages */
 
 /* PKG_USING_MBEDTLS is not set */
+/* PKG_USING_libsodium is not set */
 
 /* language packages */
 
-/* PKG_USING_JERRYSCRIPT is not set */
+#define RT_USING_JERRYSCRIPT
+#define PKG_USING_JERRYSCRIPT
+/* PKG_USING_MICROPYTHON is not set */
 
 /* multimedia packages */
-
-/* PKG_USING_FASTLZ is not set */
 
 /* tools packages */
 
@@ -183,6 +203,11 @@
 /* PKG_USING_SYSTEMVIEW is not set */
 
 /* miscellaneous packages */
+
+/* PKG_USING_FASTLZ is not set */
+/* PKG_USING_MINILZO is not set */
+
+/* example package: hello */
 
 /* PKG_USING_HELLO is not set */
 #define BOARD_X1000_REALBOARD
@@ -195,7 +220,25 @@
 /* RT_USING_UART0 is not set */
 /* RT_USING_UART1 is not set */
 #define RT_USING_UART2
+#define RT_USING_MSC0
+#define RT_USING_MSC1
+#define RT_MMCSD_STACK_SIZE 2048
+#define RT_USING_I2C0
+/* RT_USING_I2C1 is not set */
+/* RT_USING_I2C2 is not set */
+#define RT_USING_SLCD
+#define RT_USING_ILI9488
+/* RT_USING_ILI9341 is not set */
+/* RT_USING_OTM4802 is not set */
+/* RT_USING_TRULY_TFT240240 is not set */
+#define RT_USING_TOUCH
+#define RT_USING_GT9XX
+/* RT_USING_FT6x06 is not set */
+#define RT_TOUCH_THREAD_PRIORITY 10
 #define RT_USING_AUDIO
 #define RT_USING_CPU_FFS
+
+#define JERRYSCRIPT_USING_MASTER
+#define JS_USING_MASTER
 
 #endif
