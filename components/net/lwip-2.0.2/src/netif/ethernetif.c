@@ -203,7 +203,7 @@ static err_t eth_netif_device_init(struct netif *netif)
         /* set interface up */
         netif_set_up(ethif->netif);
         /* if this interface uses DHCP, start the DHCP client */
-        dhcp_start(ethif->netif);
+        // dhcp_start(ethif->netif);
 #else
         /* set interface up */
         netif_set_up(ethif->netif);
