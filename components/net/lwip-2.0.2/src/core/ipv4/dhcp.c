@@ -78,6 +78,11 @@
 
 #include <string.h>
 
+#include "error.h"
+#include "fake_clock_pub.h"
+#include "rtos_pub.h"
+#include "wlan_ui_pub.h"
+
 /** DHCP_CREATE_RAND_XID: if this is set to 1, the xid is created using
  * LWIP_RAND() (this overrides DHCP_GLOBAL_XID)
  */
@@ -162,6 +167,7 @@ static u8_t dhcp_discover_request_options[] = {
 static u32_t xid;
 static u8_t xid_initialised;
 #endif /* DHCP_GLOBAL_XID */
+static beken2_timer_t dhcp_tmr = {0};
 
 #define dhcp_option_given(dhcp, idx)          (dhcp_rx_options_given[idx] != 0)
 #define dhcp_got_option(dhcp, idx)            (dhcp_rx_options_given[idx] = 1)
@@ -704,6 +710,66 @@ void dhcp_cleanup(struct netif *netif)
   }
 }
 
+void dhcp_check_status(void)
+{
+	struct netif *netif = netif_list;
+
+	while (netif != NULL) {
+		struct dhcp *dhcp = netif_dhcp_data(netif);
+		if(dhcp != NULL){
+			if(dhcp->state != DHCP_STATE_BOUND){
+				bk_wlan_connection_loss();
+			}
+		}
+		netif = netif->next;
+	}
+}
+
+void dhcp_stop_timeout_check(void)
+{
+    OSStatus ret = kNoErr;
+	
+	if(rtos_is_oneshot_timer_init(&dhcp_tmr))
+	{
+	    if (rtos_is_oneshot_timer_running(&dhcp_tmr)) 
+		{
+	        ret = rtos_stop_oneshot_timer(&dhcp_tmr);
+			ASSERT(kNoErr == ret);
+	    }
+
+	    ret = rtos_deinit_oneshot_timer(&dhcp_tmr);
+		ASSERT(kNoErr == ret);
+	}
+}
+
+void dhcp_start_timeout_check(u32_t secs, u32_t usecs)
+{
+    OSStatus err = kNoErr;
+	u32_t clk_time;
+
+	clk_time = (secs * 1000 + usecs / 1000 ) / FCLK_DURATION_MS;
+
+	if(rtos_is_oneshot_timer_init(&dhcp_tmr))
+	{
+		os_printf("dhcp_check_status_reload_timer\r\n\r\n");
+		rtos_oneshot_reload_timer(&dhcp_tmr);
+	}
+	else
+	{
+		os_printf("dhcp_check_status_init_timer\r\n\r\n");
+		err = rtos_init_oneshot_timer(&dhcp_tmr, 
+										clk_time, 
+										(timer_2handler_t)dhcp_check_status, 
+										NULL, 
+										NULL);
+		ASSERT(kNoErr == err);
+		err = rtos_start_oneshot_timer(&dhcp_tmr);
+		ASSERT(kNoErr == err);
+	}		
+
+	return;
+}
+
 /**
  * @ingroup dhcp4
  * Start DHCP negotiation for a network interface.
@@ -777,7 +843,6 @@ dhcp_start(struct netif *netif)
   }
 #endif /* LWIP_DHCP_CHECK_LINK_UP */
 
-
   /* (re)start the DHCP negotiation */
   result = dhcp_discover(netif);
   if (result != ERR_OK) {
@@ -785,6 +850,8 @@ dhcp_start(struct netif *netif)
     dhcp_stop(netif);
     return ERR_MEM;
   }
+  /*if dhcp can't get IP, will rescan after 10 seconds.*/
+  dhcp_start_timeout_check(20, 0);
   return result;
 }
 
@@ -979,6 +1046,11 @@ dhcp_discover(struct netif *netif)
     for (i = 0; i < LWIP_ARRAYSIZE(dhcp_discover_request_options); i++) {
       dhcp_option_byte(dhcp, dhcp_discover_request_options[i]);
     }
+	
+#if LWIP_NETIF_HOSTNAME
+	dhcp_option_hostname(dhcp, netif);
+#endif /* LWIP_NETIF_HOSTNAME */
+
     dhcp_option_trailer(dhcp);
 
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_discover: realloc()ing\n"));
@@ -1113,6 +1185,8 @@ dhcp_bind(struct netif *netif)
      to ensure the callback can use dhcp_supplied_address() */
   dhcp_set_state(dhcp, DHCP_STATE_BOUND);
 
+  dhcp_stop_timeout_check();
+  
   netif_set_addr(netif, &dhcp->offered_ip_addr, &sn_mask, &gw_addr);
   /* interface is used by routing now that an address is set */
 }
@@ -1364,6 +1438,8 @@ dhcp_stop(struct netif *netif)
       dhcp->pcb_allocated = 0;
     }
   }
+  
+   dhcp_stop_timeout_check();
 }
 
 /*
