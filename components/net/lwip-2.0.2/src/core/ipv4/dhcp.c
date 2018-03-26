@@ -747,7 +747,7 @@ void dhcp_start_timeout_check(u32_t secs, u32_t usecs)
     OSStatus err = kNoErr;
 	u32_t clk_time;
 
-	clk_time = (secs * 1000 + usecs / 1000 ) / FCLK_DURATION_MS;
+	clk_time = (secs * 1000 + usecs / 1000);
 
 	if(rtos_is_oneshot_timer_init(&dhcp_tmr))
 	{
