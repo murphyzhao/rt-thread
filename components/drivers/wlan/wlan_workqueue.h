@@ -1,8 +1,11 @@
 /*
- * File      : wlan_cmd.h
- *             Wi-Fi common commands
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2006 - 2018, RT-Thread Development Team
+ *  RT-Thread Wi-Fi Device
+ *
+ * COPYRIGHT (C) 2014 - 2018, Shanghai Real-Thread Technology Co., Ltd
+ *
+ *  This file is part of RT-Thread (http://www.rt-thread.org)
+ *
+ *  All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,31 +23,22 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2018-06-05     RT-Thread    first version
+ * 2018-08-19     RT-Thread    the first verion
  */
 
-#ifndef WLAN_CMD_H__
-#define WLAN_CMD_H__
+#ifndef __WLAN_WORKQUEUE_H__
+#define __WLAN_WORKQUEUE_H__
 
-struct netif;
+#include <ipc/workqueue.h>
 
-int wifi_get_mode(void);
-int wifi_set_mode(int mode);
+#define RT_WLAN_WORKQUEUE_THREAD_NAME  ("wlan_work")
+#define RT_WLAN_WORKQUEUE_THREAD_SIZE  (2048)
+#define RT_WLAN_WORKQUEUE_THREAD_PRIO  (20)
 
-/* do the wifi default action: read wifi setting and then join or start soft-AP */
-int wifi_default(void);
-/* setup netif for soft-ap */
-int wifi_softap_setup_netif(struct netif *netif);
+int rt_wlan_workqueue_init(void);
 
-int wifi_set_setting(const char *ssid, const char *pwd);
+rt_err_t rt_wlan_workqueue_dowork(void (*func)(void *parameter), void *parameter);
 
-#ifdef PKG_USING_CJSON
-int wifi_read_cfg(const char *filename);
-int wifi_save_cfg(const char *filename);
-#endif
-/* save wifi setting with default storage file */
-int wifi_save_setting(void);
-
-extern struct rt_wlan_info info;
+struct rt_workqueue *rt_wlan_get_workqueue(void);
 
 #endif
