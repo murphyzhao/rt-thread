@@ -180,6 +180,12 @@ rt_err_t rt_wlan_prot_attach_dev(struct rt_wlan_device *wlan, rt_wlan_prot_type_
         return -RT_ERROR;
     }
 
+    if (wlan->prot != RT_NULL && ((struct rt_wlan_prot *)(wlan->prot))->type == type)
+    {
+        LOG_D("prot is register");
+        return RT_EOK;
+    }
+
     /* if prot not NULL */
     if (prot != RT_NULL)
         rt_wlan_prot_detach_dev(wlan);
