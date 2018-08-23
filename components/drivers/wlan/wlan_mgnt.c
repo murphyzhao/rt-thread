@@ -387,15 +387,10 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
 {
     rt_base_t level;
     void *user_parameter;
-    rt_wlan_event_handler handler;
+    rt_wlan_event_handler handler = RT_NULL;
     rt_err_t err = RT_NULL;
+    rt_wlan_event_t user_event = RT_WLAN_EVT_MAX;
     int i;
-
-    /* 取出用户回调 */
-    level = rt_hw_interrupt_disable();
-    handler = event_tab[event].handler;
-    user_parameter = event_tab[event].parameter;
-    rt_hw_interrupt_enable(level);
 
     /* 事件处理 */
     switch(event)
@@ -404,6 +399,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: CONNECT");
         _sta_mgnt.state |= RT_WLAN_STATE_CONNECT;
+        user_event = RT_WLAN_EVT_STA_CONNECTED;
         rt_wlan_send_msg(event, RT_NULL, 0);
         break;
     }
@@ -411,6 +407,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: CONNECT_FAIL");
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECT;
+        user_event = RT_WLAN_EVT_STA_CONNECTED_FAIL;
         rt_wlan_send_msg(event, RT_NULL, 0);
         break;
     }
@@ -418,6 +415,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: DISCONNECT");
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECT;
+        user_event = RT_WLAN_EVT_STA_DISCONNECTED;
         rt_wlan_send_msg(event, RT_NULL, 0);
         break;
     }
@@ -425,12 +423,14 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: AP_START");
         _ap_mgnt.state |= RT_WLAN_STATE_ACTIVE;
+        user_event = RT_WLAN_EVT_AP_START;
         break;
     }
     case RT_WLAN_DEV_EVT_AP_STOP:
     {
         RT_WLAN_LOG_D("event: AP_STOP");
         _ap_mgnt.state &= ~RT_WLAN_STATE_ACTIVE;
+        user_event = RT_WLAN_EVT_AP_STOP;
         err = rt_wlan_sta_info_del_all();
         if (err != RT_NULL)
         {
@@ -442,6 +442,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     case RT_WLAN_DEV_EVT_AP_ASSOCIATED:
     {
         RT_WLAN_LOG_D("event: ASSOCIATED");
+        user_event = RT_WLAN_EVT_AP_ASSOCIATED;
         if (buff == RT_NULL || buff->len == 0)
             break;
         err = rt_wlan_sta_info_add(buff->data, 200);
@@ -455,6 +456,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     case RT_WLAN_DEV_EVT_AP_DISASSOCIATED:
     {
         RT_WLAN_LOG_D("event: DISASSOCIATED");
+        user_event = RT_WLAN_EVT_AP_DISASSOCIATED;
         if (buff == RT_NULL || buff->len == 0)
             break;
         err = rt_wlan_sta_info_del(buff->data, 200);
@@ -473,6 +475,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     case RT_WLAN_DEV_EVT_SCAN_REPORT:
     {
         RT_WLAN_LOG_D("event: SCAN_REPORT");
+        user_event = RT_WLAN_EVT_SCAN_REPORT;
         if (buff == RT_NULL || buff->len == 0)
             break;
         rt_wlan_scan_result_cache(buff->data, 0);
@@ -481,6 +484,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     case RT_WLAN_DEV_EVT_SCAN_DONE:
     {
         RT_WLAN_LOG_D("event: SCAN_DONE");
+        user_event = RT_WLAN_EVT_SCAN_DONE;
         break;
     }
     default :
@@ -501,10 +505,19 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
         }
     }
 
+    /* 取出用户回调 */
+    if (user_event < RT_WLAN_EVT_MAX)
+    {
+        level = rt_hw_interrupt_disable();
+        handler = event_tab[user_event].handler;
+        user_parameter = event_tab[user_event].parameter;
+        rt_hw_interrupt_enable(level);
+    }
+
     /* run user callback fun */
     if (handler)
     {
-        handler(event, buff, user_parameter);
+        handler(user_event, buff, user_parameter);
     }
 }
 

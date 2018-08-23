@@ -48,21 +48,16 @@
 #define RT_WLAN_STATE_ACTIVE      (0x1 << 0)
 
 typedef enum {
-    RT_WLAN_EVT_READY = 0,
-    RT_WLAN_EVT_SCAN_DONE,
-    RT_WLAN_EVT_SCAN_REPORT,
-    RT_WLAN_EVT_STA_START,
-    RT_WLAN_EVT_STA_STOP,
-    RT_WLAN_EVT_STA_CONNECTED,
-    RT_WLAN_EVT_STA_DISCONNECTED,
-    RT_WLAN_EVT_STA_AUTHMODE_CHANGE,
-    RT_WLAN_EVT_STA_GOT_IP,
-    RT_WLAN_EVT_STA_LOST_IP,
-    RT_WLAN_EVT_AP_START,
-    RT_WLAN_EVT_AP_STOP,
-    RT_WLAN_EVT_AP_ASSOCIATED,
-    RT_WLAN_EVT_AP_DISASSOCIATED,
-    RT_WLAN_EVT_AP_ASSOCIATE_FAILED,
+    RT_WLAN_EVT_READY = 0,              /* connect and prot is ok, You can send data*/
+    RT_WLAN_EVT_SCAN_DONE,              /* Scan a info */
+    RT_WLAN_EVT_SCAN_REPORT,            /* Scan end */
+    RT_WLAN_EVT_STA_CONNECTED,          /* connect success */
+    RT_WLAN_EVT_STA_CONNECTED_FAIL,     /* connection failed */
+    RT_WLAN_EVT_STA_DISCONNECTED,       /* disconnect */
+    RT_WLAN_EVT_AP_START,               /* AP start */
+    RT_WLAN_EVT_AP_STOP,                /* AP stop */
+    RT_WLAN_EVT_AP_ASSOCIATED,          /* sta associated */
+    RT_WLAN_EVT_AP_DISASSOCIATED,       /* sta disassociated */
     RT_WLAN_EVT_MAX
 } rt_wlan_event_t;
 
