@@ -78,8 +78,8 @@ rt_err_t rt_wlan_dev_connect(struct rt_wlan_device *device, struct rt_wlan_info 
 
     if (device == RT_NULL) return -RT_EIO;
     if (info == RT_NULL) return -RT_ERROR;
-    if ((password_len >= KEY_LENGTH_MAX_SIZE) || 
-        (info->ssid.len >= SSID_LENGTH_MAX_SIZE))
+    if ((password_len > KEY_LENGTH_MAX_SIZE) || 
+        (info->ssid.len > SSID_LENGTH_MAX_SIZE))
     {
         LOG_E("L:%d password or ssid is to long", __LINE__);
         return -RT_ERROR;
@@ -88,8 +88,10 @@ rt_err_t rt_wlan_dev_connect(struct rt_wlan_device *device, struct rt_wlan_info 
     rt_memcpy(&sta_info.ssid, &info->ssid, sizeof(rt_wlan_ssid_t));
     rt_memcpy(sta_info.bssid, info->bssid, BSSID_LENGTH_MAX_SIZE);
     if (password != RT_NULL)
+    {
         rt_memcpy(sta_info.key.val, password, password_len);
-    sta_info.key.len = password_len;
+        sta_info.key.len = password_len;
+    }
     sta_info.channel = info->channel;
     sta_info.security = info->security;
 
