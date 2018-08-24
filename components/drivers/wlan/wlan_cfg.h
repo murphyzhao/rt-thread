@@ -31,7 +31,13 @@
 
 #include <wlan_dev.h>
 
+#ifndef RT_WLAN_CFG_INFO_MAX
 #define RT_WLAN_CFG_INFO_MAX    (3) /* min is 1 */
+#endif
+
+#if RT_WLAN_CFG_INFO_MAX < 1
+#error "The minimum configuration is 1"
+#endif
 
 #define RT_WLAN_CFG_MAGIC       (0x426f6d62)
 
