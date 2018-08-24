@@ -31,7 +31,7 @@
 
 #include <wlan_dev.h>
 
-#define RT_WLAN_CFG_INFO_MAX    (5)
+#define RT_WLAN_CFG_INFO_MAX    (3) /* min is 1 */
 
 #define RT_WLAN_CFG_MAGIC       (0x426f6d62)
 
