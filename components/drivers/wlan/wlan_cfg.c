@@ -266,7 +266,8 @@ rt_err_t rt_wlan_cfg_save(struct rt_wlan_cfg_info *cfg_info)
         }
     }
 
-    if (idx == 0)
+    if ((idx == 0) && (cfg_cache->cfg_info[i].key.len == cfg_info->key.len) && 
+        (rt_memcmp(&cfg_cache->cfg_info[i].key.val[0], &cfg_info->key.val[0], cfg_info->key.len) == 0))
     {
         WLAN_CFG_UNLOCK();
         return RT_EOK;
@@ -286,6 +287,7 @@ rt_err_t rt_wlan_cfg_save(struct rt_wlan_cfg_info *cfg_info)
     }
 
     /* move cache info */
+    i = (i >= RT_WLAN_CFG_INFO_MAX ? RT_WLAN_CFG_INFO_MAX - 1 : i);
     for ( ; i; i--)
     {
         cfg_cache->cfg_info[i] = cfg_cache->cfg_info[i-1];
