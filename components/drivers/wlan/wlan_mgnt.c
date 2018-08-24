@@ -768,7 +768,6 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
         complete_tab[i] = RT_NULL;
         rt_event_detach(&complete->complete);
         rt_free(complete);
-        RT_WLAN_LOG_I("wifi connect failed!");
         MGNT_UNLOCK();
         return err;
     }
@@ -1369,7 +1368,7 @@ struct rt_wlan_scan_result *rt_wlan_scan_with_info(struct rt_wlan_info *info)
     return &scan_result;
 }
 
-int rt_wlan_scan_get_result_num(void)
+int rt_wlan_scan_get_info_num(void)
 {
     int num = 0;
 
@@ -1378,7 +1377,7 @@ int rt_wlan_scan_get_result_num(void)
     return num;
 }
 
-int rt_wlan_scan_get_result(struct rt_wlan_info *info, int num)
+int rt_wlan_scan_get_info(struct rt_wlan_info *info, int num)
 {
     int _num = 0;
 
@@ -1390,6 +1389,11 @@ int rt_wlan_scan_get_result(struct rt_wlan_info *info, int num)
     }
     SRESULT_UNLOCK();
     return _num;
+}
+
+struct rt_wlan_scan_result *rt_wlan_scan_get_result(void)
+{
+    return &scan_result;
 }
 
 void rt_wlan_scan_result_clean(void)

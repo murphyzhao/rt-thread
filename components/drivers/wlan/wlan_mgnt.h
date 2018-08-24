@@ -121,9 +121,11 @@ struct rt_wlan_scan_result *rt_wlan_scan_sync(void);
 
 struct rt_wlan_scan_result *rt_wlan_scan_with_info(struct rt_wlan_info *info);
 
-int rt_wlan_scan_get_result_num(void);
+int rt_wlan_scan_get_info_num(void);
 
-int rt_wlan_scan_get_result(struct rt_wlan_info *info, int num);
+int rt_wlan_scan_get_info(struct rt_wlan_info *info, int num);
+
+struct rt_wlan_scan_result *rt_wlan_scan_get_result(void);
 
 void rt_wlan_scan_result_clean(void);
 
