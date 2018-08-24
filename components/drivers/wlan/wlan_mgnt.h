@@ -31,9 +31,21 @@
 
 #include <wlan_dev.h>
 
+#ifndef RT_WLAN_SCAN_WAIT_MS
 #define RT_WLAN_SCAN_WAIT_MS       (10 * 1000)
+#endif
+
+#ifndef RT_WLAN_CONNECT_WAIT_MS
 #define RT_WLAN_CONNECT_WAIT_MS    (10 * 1000)
+#endif
+
+#ifndef RT_WLAN_EBOX_NUM
 #define RT_WLAN_EBOX_NUM           (10)
+#endif
+
+#if RT_WLAN_EBOX_NUM < 1
+#error "event box num Too little"
+#endif
 
 /*state fot station*/
 #define RT_WLAN_STATE_CONNECT     (0x1 << 0)
