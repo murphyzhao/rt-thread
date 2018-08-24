@@ -31,9 +31,17 @@
 
 #include <ipc/workqueue.h>
 
-#define RT_WLAN_WORKQUEUE_THREAD_NAME  ("wlan_work")
+#ifndef RT_WLAN_WORKQUEUE_THREAD_NAME
+#define RT_WLAN_WORKQUEUE_THREAD_NAME  ("wlan_job")
+#endif
+
+#ifndef RT_WLAN_WORKQUEUE_THREAD_SIZE
 #define RT_WLAN_WORKQUEUE_THREAD_SIZE  (2048)
+#endif
+
+#ifndef RT_WLAN_WORKQUEUE_THREAD_PRIO
 #define RT_WLAN_WORKQUEUE_THREAD_PRIO  (20)
+#endif
 
 int rt_wlan_workqueue_init(void);
 
