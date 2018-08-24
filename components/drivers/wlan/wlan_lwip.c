@@ -303,7 +303,7 @@ int rt_wlan_lwip_init(void)
     rt_wlan_prot_event_t event;
 
     rt_memset(&prot, 0, sizeof(prot));
-    rt_strncpy(&prot.name[0], "lwip", WLAN_PROT_NAME_LEN);
+    rt_strncpy(&prot.name[0], "lwip", RT_WLAN_PROT_NAME_LEN);
     prot.type = RT_WLAN_PROT_LWIP;
     prot.ops = &ops;
 

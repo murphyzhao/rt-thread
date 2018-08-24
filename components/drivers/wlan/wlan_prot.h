@@ -29,7 +29,13 @@
 #ifndef __WLAN_PROT_H__
 #define __WLAN_PROT_H__
 
-#define WLAN_PROT_NAME_LEN  (8)
+#ifndef RT_WLAN_PROT_NAME_LEN
+#define RT_WLAN_PROT_NAME_LEN  (RT_NAME_MAX)
+#endif
+
+#if RT_WLAN_PROT_NAME_LEN < 1
+#error "The name is too short"
+#endif
 
 typedef enum
 {
@@ -59,7 +65,7 @@ struct rt_wlan_prot_ops
 
 struct rt_wlan_prot
 {
-    char name[WLAN_PROT_NAME_LEN];
+    char name[RT_WLAN_PROT_NAME_LEN];
     rt_wlan_prot_type_t type;
     const struct rt_wlan_prot_ops *ops;
 };
