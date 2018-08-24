@@ -85,10 +85,37 @@ typedef enum
 #define AES_ENABLED     0x0004
 #define WSEC_SWFLAG     0x0008
 
-#define SSID_LENGTH_MAX_SIZE  (32)   /* SSID MAX LEN */
-#define BSSID_LENGTH_MAX_SIZE (6)    /* BSSID MAX LEN (default is 6) */
-#define KEY_LENGTH_MAX_SIZE   (32)   /* PASSWORD MAX LEN*/
+#ifndef RT_WLAN_SSID_MAX_LENGTH
+#define RT_WLAN_SSID_MAX_LENGTH  (32)   /* SSID MAX LEN */
+#endif
+
+#ifndef RT_WLAN_BSSID_MAX_LENGTH
+#define RT_WLAN_BSSID_MAX_LENGTH (6)    /* BSSID MAX LEN (default is 6) */
+#endif
+
+#ifndef RT_WLAN_PASSWORD_MAX_LENGTH
+#define RT_WLAN_PASSWORD_MAX_LENGTH   (32)   /* PASSWORD MAX LEN*/
+#endif
+
+#ifndef RT_WLAN_DEV_EVENT_NUM
 #define RT_WLAN_DEV_EVENT_NUM  (2)   /* EVENT GROUP MAX NUM */
+#endif
+
+#if RT_WLAN_SSID_MAX_LENGTH < 1
+#error "SSID length is too short"
+#endif
+
+#if RT_WLAN_BSSID_MAX_LENGTH < 1
+#error "BSSID length is too short"
+#endif
+
+#if RT_WLAN_PASSWORD_MAX_LENGTH < 1
+#error "password length is too short"
+#endif
+
+#if RT_WLAN_DEV_EVENT_NUM < 2
+#error "dev num Too little"
+#endif
 
 /**
  * Enumeration of Wi-Fi security modes
@@ -362,14 +389,14 @@ typedef void (*rt_wlan_pormisc_callback_t)(uint8_t *data, int len);
 struct rt_wlan_ssid 
 {
     rt_uint8_t len;
-    rt_uint8_t val[SSID_LENGTH_MAX_SIZE + 1];
+    rt_uint8_t val[RT_WLAN_SSID_MAX_LENGTH + 1];
 };
 typedef struct rt_wlan_ssid rt_wlan_ssid_t;
 
 struct rt_wlan_key
 {
     rt_uint8_t len;
-    rt_uint8_t val[KEY_LENGTH_MAX_SIZE + 1];
+    rt_uint8_t val[RT_WLAN_PASSWORD_MAX_LENGTH + 1];
 };
 typedef struct rt_wlan_key rt_wlan_key_t;
 
@@ -395,7 +422,7 @@ struct rt_wlan_info
     /* ssid */
     rt_wlan_ssid_t ssid;
     /* hwaddr */
-    rt_uint8_t bssid[BSSID_LENGTH_MAX_SIZE];
+    rt_uint8_t bssid[RT_WLAN_BSSID_MAX_LENGTH];
     rt_uint8_t hidden;
 };
 

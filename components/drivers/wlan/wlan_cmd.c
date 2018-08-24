@@ -335,7 +335,7 @@ static int wifi_debug_save_cfg(int argc, char *argv[])
     if (ssid != RT_NULL)
     {
         len = rt_strlen(ssid);
-        if (len > SSID_LENGTH_MAX_SIZE)
+        if (len > RT_WLAN_SSID_MAX_LENGTH)
         {
             rt_kprintf("ssid is to long");
             return 0;
@@ -347,7 +347,7 @@ static int wifi_debug_save_cfg(int argc, char *argv[])
     if (password != RT_NULL)
     {
         len = rt_strlen(password);
-        if (len > KEY_LENGTH_MAX_SIZE)
+        if (len > RT_WLAN_PASSWORD_MAX_LENGTH)
         {
             rt_kprintf("password is to long");
             return 0;

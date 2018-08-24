@@ -184,7 +184,7 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
     for (i = 0; i < scan_result.num; i++)
     {
         if ((info->ssid.len == scan_result.info[i].ssid.len) && 
-            (rt_memcmp(&info->bssid[0], &scan_result.info[i].bssid[0], BSSID_LENGTH_MAX_SIZE) == 0))
+            (rt_memcmp(&info->bssid[0], &scan_result.info[i].bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
         {
             rt_mutex_release(&scan_result_mutex);
             return RT_EOK;
@@ -255,7 +255,7 @@ static rt_err_t rt_wlan_sta_info_del(struct rt_wlan_info *info, int timeout)
             sta_prve = sta_list, sta_list = sta_list->next)
         {
             /* find mac addr */
-            if (rt_memcmp(&sta_list->info.bssid[0], &info->bssid[0], BSSID_LENGTH_MAX_SIZE) == 0)
+            if (rt_memcmp(&sta_list->info.bssid[0], &info->bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0)
             {
                 if (sta_prve == RT_NULL)
                 {
@@ -321,7 +321,7 @@ static rt_err_t rt_wlan_auto_connect_run(void)
 
     if (id >= rt_wlan_cfg_get_num()) id = 0;
 
-    if ((cfg_info.key.len > 0) && (cfg_info.key.len < KEY_LENGTH_MAX_SIZE))
+    if ((cfg_info.key.len > 0) && (cfg_info.key.len < RT_WLAN_PASSWORD_MAX_LENGTH))
     {
         cfg_info.key.val[cfg_info.key.len] = '\0';
         password = (char *)(&cfg_info.key.val[0]);
@@ -710,7 +710,7 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
         return -RT_EINVAL;
     }
     ssid_len = rt_strlen(ssid);
-    if (ssid_len > SSID_LENGTH_MAX_SIZE)
+    if (ssid_len > RT_WLAN_SSID_MAX_LENGTH)
     {
         RT_WLAN_LOG_E("ssid is to long! ssid:%s len:%d", ssid, ssid_len);
         return -RT_EINVAL;
@@ -817,13 +817,13 @@ rt_err_t rt_wlan_connect_adv(struct rt_wlan_info *info, const char *password)
     if (password != RT_NULL)
     {
         password_len = rt_strlen(password);
-        if (password_len > KEY_LENGTH_MAX_SIZE)
+        if (password_len > RT_WLAN_PASSWORD_MAX_LENGTH)
         {
             RT_WLAN_LOG_E("password is to long! password:%s len:%d", password, password_len);
             return -RT_EINVAL;
         }
     }
-    if (info->ssid.len == 0 || info->ssid.len > SSID_LENGTH_MAX_SIZE)
+    if (info->ssid.len == 0 || info->ssid.len > RT_WLAN_SSID_MAX_LENGTH)
     {
         RT_WLAN_LOG_E("ssid is zero or to long! ssid:%s len:%d", info->ssid.val, info->ssid.len);
         return -RT_EINVAL;
@@ -835,7 +835,7 @@ rt_err_t rt_wlan_connect_adv(struct rt_wlan_info *info, const char *password)
         if ((_sta_mgnt.info.ssid.len == info->ssid.len) &&
             (_sta_mgnt.key.len == password_len) &&
             (rt_memcmp(&_sta_mgnt.info.ssid.val[0], &info->ssid.val[0], info->ssid.len) == 0) &&
-            (rt_memcmp(&_sta_mgnt.info.bssid[0], &info->bssid[0], BSSID_LENGTH_MAX_SIZE) == 0) &&
+            (rt_memcmp(&_sta_mgnt.info.bssid[0], &info->bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0) &&
             (rt_memcmp(&_sta_mgnt.key.val[0], password, password_len) == 0))
         {
             RT_WLAN_LOG_I("wifi Already Connected");
@@ -972,7 +972,7 @@ rt_err_t rt_wlan_start_ap(const char *ssid, const char *password)
         info.security = SECURITY_WPA2_AES_PSK;
     }
     ssid_len = rt_strlen(ssid);
-    if (ssid_len > SSID_LENGTH_MAX_SIZE)
+    if (ssid_len > RT_WLAN_SSID_MAX_LENGTH)
     {
         RT_WLAN_LOG_E("ssid is to long! len:%d", ssid_len);
     }
@@ -1048,7 +1048,7 @@ rt_err_t rt_wlan_start_ap_adv(struct rt_wlan_info *info, const char *password)
     if (_ap_is_null()) return -RT_EIO;
     RT_WLAN_LOG_D("%s is run", __FUNCTION__);
     password_len = rt_strlen(password);
-    if (password_len > KEY_LENGTH_MAX_SIZE)
+    if (password_len > RT_WLAN_PASSWORD_MAX_LENGTH)
     {
         RT_WLAN_LOG_E("key is to long! len:%d", password_len);
         return -RT_EINVAL;
@@ -1187,7 +1187,7 @@ rt_err_t rt_wlan_ap_deauth_sta(rt_uint8_t *mac)
     /* 重缓存中查询有没有这个sta */
     for (sta_list = sta_info.node; sta_list != RT_NULL; sta_list = sta_list->next)
     {
-        if (rt_memcmp(&sta_list->info.bssid[0], &mac[0], BSSID_LENGTH_MAX_SIZE) == 0)
+        if (rt_memcmp(&sta_list->info.bssid[0], &mac[0], RT_WLAN_BSSID_MAX_LENGTH) == 0)
         {
             find_flag = RT_TRUE;
             break;
@@ -1304,7 +1304,7 @@ struct rt_wlan_scan_result *rt_wlan_scan_with_info(struct rt_wlan_info *info)
 
     if (_sta_is_null()) return RT_NULL;
     RT_WLAN_LOG_D("%s is run", __FUNCTION__);
-    if (info != RT_NULL && info->ssid.len > SSID_LENGTH_MAX_SIZE)
+    if (info != RT_NULL && info->ssid.len > RT_WLAN_SSID_MAX_LENGTH)
     {
         RT_WLAN_LOG_E("ssid is to long!");
         return RT_NULL;
@@ -1417,7 +1417,7 @@ int rt_wlan_scan_find_cache(struct rt_wlan_info *info, struct rt_wlan_info *out_
     int i = 0, count = 0;
     struct rt_wlan_info *scan_info;
     rt_bool_t is_equ = 1;
-    rt_uint8_t bssid_zero[BSSID_LENGTH_MAX_SIZE] = { 0 };
+    rt_uint8_t bssid_zero[RT_WLAN_BSSID_MAX_LENGTH] = { 0 };
 
     if ((out_info == RT_NULL) || (info == RT_NULL) || (num <= 0))
     {
@@ -1437,9 +1437,9 @@ int rt_wlan_scan_find_cache(struct rt_wlan_info *info, struct rt_wlan_info *out_
         {
             is_equ &= rt_memcmp(&info->ssid.val[0], &scan_info->ssid.val[0], scan_info->ssid.len) == 0;
         }
-        if (is_equ && (rt_memcmp(&info->bssid[0], bssid_zero, BSSID_LENGTH_MAX_SIZE)))
+        if (is_equ && (rt_memcmp(&info->bssid[0], bssid_zero, RT_WLAN_BSSID_MAX_LENGTH)))
         {
-            is_equ &= rt_memcmp(&info->bssid[0], &scan_info->bssid[0], BSSID_LENGTH_MAX_SIZE) == 0;
+            is_equ &= rt_memcmp(&info->bssid[0], &scan_info->bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0;
         }
         if (is_equ && info->datarate)
         {

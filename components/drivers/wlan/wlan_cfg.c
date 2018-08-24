@@ -259,7 +259,7 @@ rt_err_t rt_wlan_cfg_save(struct rt_wlan_cfg_info *cfg_info)
         if ((cfg_cache->cfg_info[i].info.ssid.len == cfg_info->info.ssid.len) &&
             (rt_memcmp(&cfg_cache->cfg_info[i].info.ssid.val[0], &cfg_info->info.ssid.val[0], 
             cfg_cache->cfg_info[i].info.ssid.len) == 0) &&
-            (rt_memcmp(&cfg_cache->cfg_info[i].info.bssid[0], &cfg_info->info.bssid[0], BSSID_LENGTH_MAX_SIZE) == 0))
+            (rt_memcmp(&cfg_cache->cfg_info[i].info.bssid[0], &cfg_info->info.bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
         {
             idx = i;
             break;
