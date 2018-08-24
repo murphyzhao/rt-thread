@@ -122,7 +122,7 @@ static void rt_wlan_prot_event_handle(struct rt_wlan_device *wlan, rt_wlan_dev_e
 
     if (handler != RT_NULL)
     {
-        handler(prot, wlan, event);
+        handler(prot, wlan, prot_event);
     }
 }
 
