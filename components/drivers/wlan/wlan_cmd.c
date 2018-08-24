@@ -247,7 +247,7 @@ static int wifi_join(int argc, char *argv[])
     /* if (status != FALSE) It was changed */
     if (RT_FALSE != rt_wlan_get_autoreconnect_mode())
     {
-        rt_kprintf("!!!!!!!!!!! auto reconnect mode err !!!!!!!!!!!\n");
+        rt_kprintf("!!!!!!!!!!! auto reconnect mode !!!!!!!!!!!\n");
     }
     rt_wlan_config_autoreconnect(connect);
     return 0;
