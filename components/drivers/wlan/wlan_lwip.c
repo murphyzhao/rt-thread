@@ -32,7 +32,9 @@
 #include <wlan_prot.h>
 #include <netif/ethernetif.h>
 #include <lwip/netifapi.h>
-// #include <dhcp_server.h>
+#ifdef LWIP_USING_DHCPD
+#include <dhcp_server.h>
+#endif
 
 #define DBG_ENABLE
 #define DBG_LEVEL DBG_INFO
@@ -56,21 +58,45 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
 
     if (connected)
     {
-        netifapi_netif_set_link_up(eth_dev->netif);
-        // if (wifi->type == WIFI_TYPE_STA)
+        if (wlan->mode == RT_WLAN_STATION)
+        {
+            LOG_D("F:%s L:%d dhcp start run", __FUNCTION__, __LINE__);
+            netifapi_netif_set_link_up(eth_dev->netif);
             dhcp_start(eth_dev->netif);
-        LOG_D("F:%s L:%d dhcp_start run", __FUNCTION__, __LINE__);
-        // else if (wifi->type == WIFI_TYPE_AP)
-        //     dhcpd_start(WIFI_DEVICE_AP_NAME);
+        }
+        else if (wlan->mode == RT_WLAN_AP)
+        {
+            LOG_D("F:%s L:%d dhcpd start run", __FUNCTION__, __LINE__);
+
+            netifapi_netif_set_link_up(eth_dev->netif);
+#ifdef LWIP_USING_DHCPD
+            {
+                char netif_name[8];
+                int i;
+
+                rt_memset(netif_name, 0, sizeof(netif_name));
+                for (i = 0; i < sizeof(eth_dev->netif->name); i++)
+                {
+                    netif_name[i] = eth_dev->netif->name[i];
+                }
+                dhcpd_start(netif_name);
+            }
+#endif
+        }     
     }
     else
     {
-        netifapi_netif_set_link_down(eth_dev->netif);
-        // if (wifi->type == WIFI_TYPE_STA)
+        if (wlan->mode == RT_WLAN_STATION)
+        {
+            LOG_D("F:%s L:%d dhcp stop run", __FUNCTION__, __LINE__);
+            netifapi_netif_set_link_down(eth_dev->netif);
             dhcp_stop(eth_dev->netif);
-        LOG_D("F:%s L:%d dhcp_stop run", __FUNCTION__, __LINE__);
-        // else if (wifi->type == WIFI_TYPE_AP)
-        //     dhcpd_stop(WIFI_DEVICE_AP_NAME);
+        }
+        else if (wlan->mode == RT_WLAN_AP)
+        {
+            LOG_D("F:%s L:%d dhcpd stop run", __FUNCTION__, __LINE__);
+            netifapi_netif_set_link_down(eth_dev->netif);
+        }
     }
 }
 
@@ -93,11 +119,13 @@ static void rt_wlan_lwip_event_handle(struct rt_wlan_prot *port, struct rt_wlan_
     case RT_WLAN_PROT_EVT_AP_START:
     {
         LOG_D("event: AP_START");
+        netif_set_connected(wlan, 1);
         break;
     }
     case RT_WLAN_PROT_EVT_AP_STOP:
     {
         LOG_D("event: AP_STOP");
+        netif_set_connected(wlan, 0);
         break;
     }
     case RT_WLAN_PROT_EVT_AP_ASSOCIATED:
@@ -152,7 +180,7 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
         struct pbuf *p;
         int count = 0;
 
-        while ((p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL)) == RT_NULL)
+        while ((p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM)) == RT_NULL)
         {
             LOG_W("F:%s L:%d wait for pbuf_alloc!", __FUNCTION__, __LINE__);
             rt_thread_delay(1);
