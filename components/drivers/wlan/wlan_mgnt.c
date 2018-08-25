@@ -27,7 +27,6 @@
  */
 #include <rthw.h>
 #include <rtthread.h>
-#include <ipc/completion.h>
 #include <wlan_dev.h>
 #include <wlan_cfg.h>
 #include <wlan_mgnt.h>
@@ -391,7 +390,9 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     rt_err_t err = RT_NULL;
     rt_wlan_event_t user_event = RT_WLAN_EVT_MAX;
     int i;
+    struct rt_wlan_buff user_buff = { 0 };
 
+    if (buff) user_buff = *buff;
     /* 事件处理 */
     switch(event)
     {
@@ -443,13 +444,13 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: ASSOCIATED");
         user_event = RT_WLAN_EVT_AP_ASSOCIATED;
-        if (buff == RT_NULL || buff->len == 0)
+        if (user_buff.len == 0)
             break;
-        err = rt_wlan_sta_info_add(buff->data, 200);
+        err = rt_wlan_sta_info_add(user_buff.data, 200);
         if (err != RT_EOK)
         {
             RT_WLAN_LOG_W("AP_ASSOCIATED event handle fail");
-            rt_wlan_send_msg(RT_WLAN_DEV_EVT_AP_ASSOCIATED, buff->data, sizeof(struct rt_wlan_info));
+            rt_wlan_send_msg(RT_WLAN_DEV_EVT_AP_ASSOCIATED, user_buff.data, sizeof(struct rt_wlan_info));
         }
         break;
     }
@@ -457,13 +458,13 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: DISASSOCIATED");
         user_event = RT_WLAN_EVT_AP_DISASSOCIATED;
-        if (buff == RT_NULL || buff->len == 0)
+        if (user_buff.len == 0)
             break;
-        err = rt_wlan_sta_info_del(buff->data, 200);
+        err = rt_wlan_sta_info_del(user_buff.data, 200);
         if (err != RT_EOK)
         {
             RT_WLAN_LOG_W("AP_DISASSOCIATED event handle fail");
-            rt_wlan_send_msg(RT_WLAN_DEV_EVT_AP_DISASSOCIATED, buff->data, sizeof(struct rt_wlan_info));
+            rt_wlan_send_msg(RT_WLAN_DEV_EVT_AP_DISASSOCIATED, user_buff.data, sizeof(struct rt_wlan_info));
         }
         break;
     }
@@ -476,14 +477,16 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: SCAN_REPORT");
         user_event = RT_WLAN_EVT_SCAN_REPORT;
-        if (buff == RT_NULL || buff->len == 0)
+        if (user_buff.len == 0)
             break;
-        rt_wlan_scan_result_cache(buff->data, 0);
+        rt_wlan_scan_result_cache(user_buff.data, 0);
         break;
     }
     case RT_WLAN_DEV_EVT_SCAN_DONE:
     {
         RT_WLAN_LOG_D("event: SCAN_DONE");
+        user_buff.data = &scan_result;
+        user_buff.len = sizeof(scan_result);
         user_event = RT_WLAN_EVT_SCAN_DONE;
         break;
     }
@@ -517,7 +520,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     /* run user callback fun */
     if (handler)
     {
-        handler(user_event, buff, user_parameter);
+        handler(user_event, &user_buff, user_parameter);
     }
 }
 
