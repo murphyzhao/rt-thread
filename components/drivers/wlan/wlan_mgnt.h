@@ -49,12 +49,12 @@
 
 /*state fot station*/
 #define RT_WLAN_STATE_CONNECT     (0x1 << 0)
-#define RT_WLAN_STATE_GOTIP       (0x1 << 1)
-#define RT_WLAN_STATE_POWERSAVE   (0x1 << 2)
+#define RT_WLAN_STATE_CONNECTING  (0x1 << 1)
+#define RT_WLAN_STATE_READY       (0x1 << 2)
+#define RT_WLAN_STATE_POWERSAVE   (0x1 << 3)
 
 /*flags fot station*/
 #define RT_WLAN_STATE_AUTOEN      (0x1 << 0)
-#define RT_WLAN_STATE_AUTOCONN    (0x1 << 1)
 
 /*state fot ap*/
 #define RT_WLAN_STATE_ACTIVE      (0x1 << 0)

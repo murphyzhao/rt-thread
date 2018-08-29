@@ -238,18 +238,18 @@ static int wifi_join(int argc, char *argv[])
     {
         return -1;
     }
-    /* save auto connect status */
-    connect = rt_wlan_get_autoreconnect_mode();
-    /* close auto connecy */
-    rt_wlan_config_autoreconnect(RT_FALSE);
+    // /* save auto connect status */
+    // connect = rt_wlan_get_autoreconnect_mode();
+    // /* close auto connecy */
+    // rt_wlan_config_autoreconnect(RT_FALSE);
     /* run connect */
     rt_wlan_connect(ssid, key);
     /* if (status != FALSE) It was changed */
-    if (RT_FALSE != rt_wlan_get_autoreconnect_mode())
-    {
-        rt_kprintf("!!!!!!!!!!! auto reconnect mode !!!!!!!!!!!\n");
-    }
-    rt_wlan_config_autoreconnect(connect);
+    // if (RT_FALSE != rt_wlan_get_autoreconnect_mode())
+    // {
+    //     rt_kprintf("!!!!!!!!!!! auto reconnect mode !!!!!!!!!!!\n");
+    // }
+    // rt_wlan_config_autoreconnect(connect);
     return 0;
 }
 

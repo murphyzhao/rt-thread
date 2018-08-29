@@ -56,8 +56,13 @@
 #define STAINFO_LOCK()    (rt_mutex_take(&sta_info_mutex, RT_WAITING_FOREVER))
 #define STAINFO_UNLOCK()  (rt_mutex_release(&sta_info_mutex))
 
-#define MGNT_LOCK()       (rt_mutex_release(&mgnt_mutex))
+#define MGNT_LOCK()       (rt_mutex_take(&mgnt_mutex, RT_WAITING_FOREVER))
 #define MGNT_UNLOCK()     (rt_mutex_release(&mgnt_mutex))
+
+#define TIME_STOP()    (rt_timer_stop(&reconnect_time))
+#define TIME_START()   (rt_timer_start(&reconnect_time))
+
+#define DISCONNECT_RESPONSE_TICK    (2000)
 
 struct rt_wlan_mgnt_des
 {
@@ -116,6 +121,8 @@ static struct rt_wlan_complete_des *complete_tab[5];
 
 static rt_mailbox_t event_box;
 
+static struct rt_timer reconnect_time;
+
 rt_inline int _sta_is_null(void)
 {
     if (_sta_mgnt.device == RT_NULL)
@@ -132,6 +139,17 @@ rt_inline int _ap_is_null(void)
         return 1;
     }
     return 0;
+}
+
+rt_inline rt_bool_t _is_do_connect(void)
+{
+    if ((rt_wlan_get_autoreconnect_mode() == RT_FALSE) ||
+        (rt_wlan_is_connected() == RT_TRUE) ||
+        (_sta_mgnt.state & RT_WLAN_STATE_CONNECTING))
+    {
+        return RT_FALSE;
+    }
+    return RT_TRUE;
 }
 
 static void rt_wlan_mgnt_work(void *parameter);
@@ -298,24 +316,33 @@ static rt_err_t rt_wlan_sta_info_del_all(void)
     return err;
 }
 
-static rt_err_t rt_wlan_auto_connect_run(void)
+static void rt_wlan_auto_connect_run(void *parameter)
 {
     static rt_uint32_t id = 0;
     struct rt_wlan_cfg_info cfg_info = { 0 };
-    rt_err_t err = RT_EOK;
     char *password = RT_NULL;
 
-    /* auto connect status is disable or wifi is connect, exit */
-    if ((rt_wlan_get_autoreconnect_mode() == RT_FALSE) ||
-        (rt_wlan_is_connected() == RT_TRUE))
+    RT_WLAN_LOG_D("F:%s is run", __FUNCTION__);
+
+    if (rt_mutex_take(&mgnt_mutex, 0) != RT_EOK)
+        return;
+
+    /* auto connect status is disable or wifi is connect or connecting, exit */
+    if (_is_do_connect() == RT_FALSE)
     {
         id = 0;
-        return RT_EOK;
+        RT_WLAN_LOG_D("not connection");
+        MGNT_UNLOCK();
+        return;
     }
+
     /* Read the next configuration */
     if (rt_wlan_cfg_read_index(&cfg_info, id ++) == 0)
     {
-        return RT_EOK;
+        RT_WLAN_LOG_D("read cfg fail");
+        id = 0;
+        MGNT_UNLOCK();
+        return;
     }
 
     if (id >= rt_wlan_cfg_get_num()) id = 0;
@@ -325,8 +352,16 @@ static rt_err_t rt_wlan_auto_connect_run(void)
         cfg_info.key.val[cfg_info.key.len] = '\0';
         password = (char *)(&cfg_info.key.val[0]);
     }
-    err = rt_wlan_connect_adv(&cfg_info.info, password);
-    return err;
+    rt_wlan_connect_adv(&cfg_info.info, password);
+    MGNT_UNLOCK();
+}
+
+static void rt_wlan_cyclic_check(void *parameter)
+{
+    if (_is_do_connect() == RT_TRUE)
+    {
+        rt_wlan_workqueue_dowork(rt_wlan_auto_connect_run, RT_NULL);
+    }
 }
 
 static void rt_wlan_mgnt_work(void *parameter)
@@ -351,10 +386,6 @@ static void rt_wlan_mgnt_work(void *parameter)
     case RT_WLAN_DEV_EVT_DISCONNECT:
     {
         /* disconnect event, run auto connect */
-        if (rt_wlan_auto_connect_run() != RT_EOK)
-        {
-            rt_wlan_send_msg(RT_WLAN_DEV_EVT_CONNECT_FAIL, RT_NULL, 0);
-        }
         break;
     }
     case RT_WLAN_DEV_EVT_AP_ASSOCIATED:
@@ -400,7 +431,9 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: CONNECT");
         _sta_mgnt.state |= RT_WLAN_STATE_CONNECT;
+        _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECTING;
         user_event = RT_WLAN_EVT_STA_CONNECTED;
+        TIME_STOP();
         rt_wlan_send_msg(event, RT_NULL, 0);
         break;
     }
@@ -408,7 +441,9 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: CONNECT_FAIL");
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECT;
+        _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECTING;
         user_event = RT_WLAN_EVT_STA_CONNECTED_FAIL;
+        TIME_START();
         rt_wlan_send_msg(event, RT_NULL, 0);
         break;
     }
@@ -417,6 +452,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
         RT_WLAN_LOG_D("event: DISCONNECT");
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECT;
         user_event = RT_WLAN_EVT_STA_DISCONNECTED;
+        TIME_START();
         rt_wlan_send_msg(event, RT_NULL, 0);
         break;
     }
@@ -778,7 +814,6 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
     /* Initializing events that need to wait */
     set |= 0x1 << RT_WLAN_DEV_EVT_CONNECT;
     set |= 0x1 << RT_WLAN_DEV_EVT_CONNECT_FAIL;
-    set |= 0x1 << RT_WLAN_DEV_EVT_DISCONNECT;
     /* Check whether there is a waiting event */
     recved = complete->event_flag;
     if (!(recved & set))
@@ -854,11 +889,13 @@ rt_err_t rt_wlan_connect_adv(struct rt_wlan_info *info, const char *password)
     _sta_mgnt.key.val[password_len] = '\0';
 
     /* run wifi connect */
+    _sta_mgnt.state |= RT_WLAN_STATE_CONNECTING;
     err = rt_wlan_dev_connect(_sta_mgnt.device, info, password, password_len);
     if (err != RT_EOK)
     {
         rt_memset(&_sta_mgnt.info, 0, sizeof(struct rt_wlan_ssid));
         rt_memset(&_sta_mgnt.key, 0, sizeof(struct rt_wlan_key));
+        _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECTING;
         MGNT_UNLOCK();
         return err;
     }
@@ -1251,10 +1288,6 @@ void rt_wlan_config_autoreconnect(rt_bool_t enable)
     if (enable)
     {
         _sta_mgnt.flags |= RT_WLAN_STATE_AUTOEN;
-        if (rt_wlan_is_connected() == RT_FALSE)
-        {
-            rt_wlan_send_msg(RT_WLAN_DEV_EVT_DISCONNECT, RT_NULL, 0);
-        }
     }
     else
     {
@@ -1547,6 +1580,8 @@ int rt_wlan_init(void)
         rt_mutex_init(&mgnt_mutex, "mgnt", RT_IPC_FLAG_FIFO);
         rt_mutex_init(&scan_result_mutex, "scan", RT_IPC_FLAG_FIFO);
         rt_mutex_init(&sta_info_mutex, "sta", RT_IPC_FLAG_FIFO);
+        rt_timer_init(&reconnect_time, "wifi_tim", rt_wlan_cyclic_check, RT_NULL, DISCONNECT_RESPONSE_TICK, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
+        rt_timer_start(&reconnect_time);
         /* create event */
         event_box = rt_mb_create ("wlan", RT_WLAN_EBOX_NUM, RT_IPC_FLAG_FIFO);
         if (event_box == RT_NULL)
