@@ -30,6 +30,7 @@
 #include <rtthread.h>
 #include <wlan_dev.h>
 #include <wlan_prot.h>
+#ifdef RT_USING_LWIP
 #include <netif/ethernetif.h>
 #include <lwip/netifapi.h>
 #ifdef LWIP_USING_DHCPD
@@ -349,3 +350,5 @@ int rt_wlan_lwip_init(void)
     return 0;
 }
 INIT_PREV_EXPORT(rt_wlan_lwip_init);
+
+#endif
