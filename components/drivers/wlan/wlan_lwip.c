@@ -63,7 +63,9 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
         {
             LOG_D("F:%s L:%d dhcp start run", __FUNCTION__, __LINE__);
             netifapi_netif_set_link_up(eth_dev->netif);
+#ifdef RT_LWIP_DHCP
             dhcp_start(eth_dev->netif);
+#endif
         }
         else if (wlan->mode == RT_WLAN_AP)
         {
@@ -83,7 +85,7 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
                 dhcpd_start(netif_name);
             }
 #endif
-        }     
+        }
     }
     else
     {
@@ -91,7 +93,9 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
         {
             LOG_D("F:%s L:%d dhcp stop run", __FUNCTION__, __LINE__);
             netifapi_netif_set_link_down(eth_dev->netif);
+#ifdef RT_LWIP_DHCP
             dhcp_stop(eth_dev->netif);
+#endif
         }
         else if (wlan->mode == RT_WLAN_AP)
         {
