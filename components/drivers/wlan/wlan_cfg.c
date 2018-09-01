@@ -80,12 +80,6 @@ static rt_uint16_t rt_wlan_cal_crc(rt_uint8_t *buff, int len)
     return wCRCin;
 }
 
-/* TODO:Delete repetition items */
-static void rt_wlan_cfg_check(void)
-{
-
-}
-
 void rt_wlan_cfg_init(void)
 {
     /* init cache memory */
@@ -145,11 +139,12 @@ rt_err_t rt_wlan_cfg_cache_save(void)
 
 rt_err_t rt_wlan_cfg_cache_refresh(void)
 {
-    int len = 0, num = 0;
+    int len = 0, i, j;
     struct cfg_save_info_head *head;
     void *data;
-    struct rt_wlan_cfg_info *t_info;
+    struct rt_wlan_cfg_info *t_info, *cfg_info;
     rt_uint32_t crc;
+    rt_bool_t equal_flag;
 
     /* cache is full! exit */
     if (cfg_cache == RT_NULL || cfg_cache->num >= RT_WLAN_CFG_INFO_MAX)
@@ -200,20 +195,43 @@ rt_err_t rt_wlan_cfg_cache_refresh(void)
         return -RT_ERROR;
     }
 
-    /* todo: */
-    rt_wlan_cfg_check();
-    /* refresh cache */
-    num = (RT_WLAN_CFG_INFO_MAX - cfg_cache->num) > head->num ? head->num : (RT_WLAN_CFG_INFO_MAX - cfg_cache->num);
-    t_info = rt_realloc(cfg_cache->cfg_info, sizeof(struct rt_wlan_cfg_info) * (cfg_cache->num + num));
-    if (t_info == RT_NULL)
+    /* remove duplicate config */
+    cfg_info = (struct rt_wlan_cfg_info *)data;
+    for (i = 0; i < head->num; i++)
     {
-        rt_free(head);
-        WLAN_CFG_UNLOCK();
-        return -RT_ERROR;
+        equal_flag = RT_FALSE;
+        for (j = 0; j < cfg_cache->num; j++)
+        {
+            if ((cfg_cache->cfg_info[j].info.ssid.len == cfg_info[i].info.ssid.len) &&
+            (rt_memcmp(&cfg_cache->cfg_info[j].info.ssid.val[0], &cfg_info[i].info.ssid.val[0], 
+            cfg_cache->cfg_info[j].info.ssid.len) == 0) &&
+            (rt_memcmp(&cfg_cache->cfg_info[j].info.bssid[0], &cfg_info[i].info.bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
+            {
+                equal_flag = RT_TRUE;
+                break;
+            }
+        }
+
+        if (cfg_cache->num >= RT_WLAN_CFG_INFO_MAX)
+        {
+            break;
+        }
+
+        if (equal_flag == RT_FALSE)
+        {
+            t_info = rt_realloc(cfg_cache->cfg_info, sizeof(struct rt_wlan_cfg_info) * (cfg_cache->num + 1));
+            if (t_info == RT_NULL)
+            {
+                rt_free(head);
+                WLAN_CFG_UNLOCK();
+                return -RT_ERROR;
+            }
+            cfg_cache->cfg_info = t_info;
+            cfg_cache->cfg_info[cfg_cache->num] = cfg_info[i];
+            cfg_cache->num ++;
+        }
     }
-    cfg_cache->cfg_info = t_info;
-    rt_memcpy(&cfg_cache->cfg_info[cfg_cache->num], data, sizeof(struct rt_wlan_cfg_info) * num);
-    cfg_cache->num += num;
+
     rt_free(head);
     WLAN_CFG_UNLOCK();
     return RT_EOK;
