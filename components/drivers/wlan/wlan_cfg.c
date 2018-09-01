@@ -248,6 +248,8 @@ int rt_wlan_cfg_read(struct rt_wlan_cfg_info *cfg_info, int num)
 {
     rt_wlan_cfg_init();
 
+    if (num <= 0)
+        return 0;
     /* copy data */
     WLAN_CFG_LOCK();
     num = cfg_cache->num > num ? num : cfg_cache->num;
@@ -324,14 +326,63 @@ int rt_wlan_cfg_read_index(struct rt_wlan_cfg_info *cfg_info, int index)
 {
     rt_wlan_cfg_init();
 
-    if (index >= cfg_cache->num)
+    if (index < 0)
         return 0;
 
     WLAN_CFG_LOCK();
+    if (index >= cfg_cache->num)
+    {
+        WLAN_CFG_UNLOCK();
+        return 0;
+    }
     /* copy data */
-    rt_memcpy(cfg_info, &cfg_cache->cfg_info[index], sizeof(struct rt_wlan_cfg_info));
+    *cfg_info = cfg_cache->cfg_info[index];
     WLAN_CFG_UNLOCK();
     return 1;
+}
+
+int rt_wlan_cfg_delete_index(int index)
+{
+    struct rt_wlan_cfg_info *cfg_info;
+    int i;
+
+    rt_wlan_cfg_init();    
+
+    if (index < 0)
+        return -1;
+
+    WLAN_CFG_LOCK();
+    if (index >= cfg_cache->num)
+    {
+        WLAN_CFG_UNLOCK();
+        return -1;
+    }
+
+    /* malloc new mem */
+    cfg_info = rt_malloc(sizeof(struct rt_wlan_cfg_info) * (cfg_cache->num - 1));
+    if (cfg_info == RT_NULL)
+    {
+        WLAN_CFG_UNLOCK();
+        return -1;
+    }
+    /* copy data to new mem */
+    for (i = 0; i < cfg_cache->num; i++)
+    {
+        if (i < index)
+        {
+            cfg_info[i] = cfg_cache->cfg_info[i];
+        }
+        else if (i > index)
+        {
+            cfg_info[i - 1] = cfg_cache->cfg_info[i];
+        }
+    }
+    rt_free(cfg_cache->cfg_info);
+    cfg_cache->cfg_info = cfg_info;
+    cfg_cache->num --;
+    WLAN_CFG_UNLOCK();
+
+    return 0;
 }
 
 void rt_wlan_cfg_delete_all(void)
@@ -355,8 +406,8 @@ void rt_wlan_cfg_dump(void)
 
     rt_wlan_cfg_init();
 
-    rt_kprintf("             SSID                           PASSWORD                   MAC            security     chn \n");
-    rt_kprintf("------------------------------- ------------------------------- -----------------  --------------  --- \n");
+    rt_kprintf("             SSID                           PASSWORD                   MAC            security     chn\n");
+    rt_kprintf("------------------------------- ------------------------------- -----------------  --------------  ---\n");
     for (index = 0; index < cfg_cache->num; index ++)
     {
         info = &cfg_cache->cfg_info[index].info;

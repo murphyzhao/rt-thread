@@ -64,6 +64,7 @@ int rt_wlan_cfg_read_index(struct rt_wlan_cfg_info *cfg_info, int index);
 rt_err_t rt_wlan_cfg_save (struct rt_wlan_cfg_info *cfg_info); /* auto save config to flash */
 rt_err_t rt_wlan_cfg_cache_refresh(void);
 rt_err_t rt_wlan_cfg_cache_save(void);
+int rt_wlan_cfg_delete_index(int index);
 void rt_wlan_cfg_delete_all(void);
 void rt_wlan_cfg_dump(void);
 #endif
