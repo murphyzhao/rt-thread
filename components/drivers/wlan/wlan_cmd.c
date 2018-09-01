@@ -161,12 +161,12 @@ static int wifi_scan(int argc, char *argv[])
         char *security;
 
         num = scan_result->num;
-        rt_kprintf("             SSID                      MAC              security    rssi   chn    Mbps\n");
-        rt_kprintf("------------------------------- -----------------    -------------- ----   ---    ----\n");
+        rt_kprintf("             SSID                      MAC            security    rssi chn Mbps\n");
+        rt_kprintf("------------------------------- -----------------  -------------- ---- --- ----\n");
         for (index = 0; index < num; index ++)
         {
             rt_kprintf("%-32.32s", &scan_result->info[index].ssid.val[0]);
-            rt_kprintf("%02x:%02x:%02x:%02x:%02x:%02x    ",
+            rt_kprintf("%02x:%02x:%02x:%02x:%02x:%02x  ",
                 scan_result->info[index].bssid[0],
                 scan_result->info[index].bssid[1],
                 scan_result->info[index].bssid[2],
@@ -189,8 +189,8 @@ static int wifi_scan(int argc, char *argv[])
             default:security = "UNKNOWN"; break;
             }
             rt_kprintf("%-14.14s ", security);
-            rt_kprintf("%4d   ", scan_result->info[index].rssi);
-            rt_kprintf("%3d    ", scan_result->info[index].channel);
+            rt_kprintf("%4d ", scan_result->info[index].rssi);
+            rt_kprintf("%3d ", scan_result->info[index].channel);
             rt_kprintf("%d\n", scan_result->info[index].datarate / 1000000);
         }
         rt_wlan_scan_result_clean();
@@ -207,7 +207,6 @@ static int wifi_join(int argc, char *argv[])
     const char *ssid = RT_NULL;
     const char *key = RT_NULL;
     struct rt_wlan_cfg_info cfg_info;
-    rt_bool_t connect;
 
     if (argc ==  2)
     {
@@ -238,18 +237,7 @@ static int wifi_join(int argc, char *argv[])
     {
         return -1;
     }
-    // /* save auto connect status */
-    // connect = rt_wlan_get_autoreconnect_mode();
-    // /* close auto connecy */
-    // rt_wlan_config_autoreconnect(RT_FALSE);
-    /* run connect */
     rt_wlan_connect(ssid, key);
-    /* if (status != FALSE) It was changed */
-    // if (RT_FALSE != rt_wlan_get_autoreconnect_mode())
-    // {
-    //     rt_kprintf("!!!!!!!!!!! auto reconnect mode !!!!!!!!!!!\n");
-    // }
-    // rt_wlan_config_autoreconnect(connect);
     return 0;
 }
 
