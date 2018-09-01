@@ -29,6 +29,7 @@
 #include <rthw.h>
 #include <rtthread.h>
 #include <wlan_workqueue.h>
+#include <ipc/workqueue.h>
 
 #define DBG_ENABLE
 #define DBG_LEVEL DBG_INFO
@@ -88,11 +89,6 @@ rt_err_t rt_wlan_workqueue_dowork(void (*func)(void *parameter), void *parameter
         return err;
     }
     return err;
-}
-
-struct rt_workqueue *rt_wlan_get_workqueue(void)
-{
-    return wlan_workqueue;
 }
 
 int rt_wlan_workqueue_init(void)
