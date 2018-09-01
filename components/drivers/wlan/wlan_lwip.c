@@ -178,19 +178,27 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
 
     if (eth_dev)
     {
-        struct pbuf *p;
+        struct pbuf *p = RT_NULL;
         int count = 0;
 
-        while ((p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM)) == RT_NULL)
+        while (p == RT_NULL)
         {
-            LOG_W("F:%s L:%d wait for pbuf_alloc!", __FUNCTION__, __LINE__);
+            p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
+            if (p != RT_NULL)
+                break;
+
+            p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM);
+            if (p != RT_NULL)
+                break;
+
+            LOG_D("F:%s L:%d wait for pbuf_alloc!", __FUNCTION__, __LINE__);
             rt_thread_delay(1);
             count++;
 
             //wait for 10ms or give up!!
             if (count >= 10)
             {
-                LOG_E("F:%s L:%d pbuf allocate fail!!!", __FUNCTION__, __LINE__);
+                LOG_W("F:%s L:%d pbuf allocate fail!!!", __FUNCTION__, __LINE__);
                 return -RT_ENOMEM;
             }
         }
@@ -200,7 +208,7 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
 
         if ((eth_dev->netif->input(p, eth_dev->netif)) != ERR_OK)
         {
-            LOG_E("F:%s L:%d IP input error", __FUNCTION__, __LINE__);
+            LOG_D("F:%s L:%d IP input error", __FUNCTION__, __LINE__);
             pbuf_free(p);
             p = RT_NULL;
         }
