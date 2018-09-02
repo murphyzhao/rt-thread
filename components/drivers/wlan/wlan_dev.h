@@ -85,6 +85,11 @@ typedef enum
 #define AES_ENABLED     0x0004
 #define WSEC_SWFLAG     0x0008
 
+#define RT_WLAN_FLAG_STA_ONLY    (0x1 << 0)
+#define RT_WLAN_FLAG_AP_ONLY     (0x1 << 1)
+
+#define RT_WLAN_FLAG_LWIP_FORCE  (0x1 << 16)
+
 #ifndef RT_WLAN_SSID_MAX_LENGTH
 #define RT_WLAN_SSID_MAX_LENGTH  (32)   /* SSID MAX LEN */
 #endif
@@ -466,6 +471,7 @@ struct rt_wlan_device
     struct rt_mutex lock;
     struct rt_wlan_dev_event_desc handler_table[RT_WLAN_DEV_EVT_MAX][RT_WLAN_DEV_EVENT_NUM];
     const struct rt_wlan_dev_ops *ops;
+    rt_uint32_t flags;
     void *prot;       /* !!! is protocol !!!*/
     void *user_data;
 };

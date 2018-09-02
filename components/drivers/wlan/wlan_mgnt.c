@@ -1593,6 +1593,7 @@ int rt_wlan_prot_ready_event(struct rt_wlan_device *wlan)
     {
         handler(RT_WLAN_EVT_READY, &user_buff, user_parameter);
     }
+    return 0;
 }
 
 int rt_wlan_init(void)

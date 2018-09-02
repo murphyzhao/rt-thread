@@ -212,14 +212,26 @@ static rt_err_t rt_wlan_lwip_protocol_control(rt_device_t device, int cmd, void 
 static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *buff, int len)
 {
     struct eth_device *eth_dev = &((struct lwip_prot_des *)wlan->prot)->eth;
+    struct pbuf *p = RT_NULL;
+    int count = 0;
 
     LOG_D("F:%s L:%d run", __FUNCTION__, __LINE__);
 
-    if (eth_dev)
+    if (eth_dev == RT_NULL)
     {
-        struct pbuf *p = RT_NULL;
-        int count = 0;
+        return -RT_ERROR;
+    }
 
+    if (wlan->flags & RT_WLAN_FLAG_LWIP_FORCE)
+    {
+        p = buff;
+        if ((eth_dev->netif->input(p, eth_dev->netif)) != ERR_OK)
+        {
+            return -RT_ERROR;
+        }
+    }
+    else
+    {
         while (p == RT_NULL)
         {
             p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
@@ -241,10 +253,8 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
                 return -RT_ENOMEM;
             }
         }
-
         /*copy data dat -> pbuf*/
         pbuf_take(p, buff, len);
-
         if ((eth_dev->netif->input(p, eth_dev->netif)) != ERR_OK)
         {
             LOG_D("F:%s L:%d IP input error", __FUNCTION__, __LINE__);
@@ -253,7 +263,6 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
         }
         LOG_D("F:%s L:%d netif iput success! len:%d", __FUNCTION__, __LINE__, len);
     }
-
     return RT_EOK;
 }
 
@@ -264,7 +273,17 @@ static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf* p)
 
     LOG_D("F:%s L:%d run", __FUNCTION__, __LINE__);
 
-    if (wlan)
+    if (wlan == RT_NULL)
+    {
+        return RT_EOK;
+    }
+
+    if (wlan->flags & RT_WLAN_FLAG_LWIP_FORCE)
+    {
+        rt_wlan_prot_transfer_dev(wlan, p, p->tot_len);
+        return RT_EOK;
+    }
+    else
     {
         /* sending data directly */
         if (p->len == p->tot_len)
@@ -287,7 +306,6 @@ static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf* p)
         LOG_D("F:%s L:%d run len:%d", __FUNCTION__, __LINE__, p->tot_len);
         rt_free(frame);
     }
-
     return RT_EOK;
 }
 
