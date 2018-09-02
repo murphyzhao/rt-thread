@@ -442,6 +442,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
         RT_WLAN_LOG_D("event: CONNECT_FAIL");
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECT;
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECTING;
+        _sta_mgnt.state &= ~RT_WLAN_STATE_READY;
         user_event = RT_WLAN_EVT_STA_CONNECTED_FAIL;
         TIME_START();
         rt_wlan_send_msg(event, RT_NULL, 0);
@@ -451,6 +452,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
     {
         RT_WLAN_LOG_D("event: DISCONNECT");
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECT;
+        _sta_mgnt.state &= ~RT_WLAN_STATE_READY;
         user_event = RT_WLAN_EVT_STA_DISCONNECTED;
         TIME_START();
         rt_wlan_send_msg(event, RT_NULL, 0);
@@ -1564,6 +1566,33 @@ void rt_wlan_mgnt_lock(void)
 void rt_wlan_mgnt_unlock(void)
 {
     MGNT_UNLOCK();
+}
+
+int rt_wlan_prot_ready_event(struct rt_wlan_device *wlan)
+{
+    rt_base_t level;
+    void *user_parameter;
+    rt_wlan_event_handler handler = RT_NULL;
+    struct rt_wlan_buff user_buff = { 0 };
+
+    if ((wlan == RT_NULL) || (_sta_mgnt.device != wlan) ||
+        (!(_sta_mgnt.state & RT_WLAN_STATE_CONNECT)))
+    {
+        return -1;
+    }
+    if (_sta_mgnt.state & RT_WLAN_STATE_READY)
+    {
+        return 0;
+    }
+    level = rt_hw_interrupt_disable();
+    _sta_mgnt.state |= RT_WLAN_STATE_READY;
+    handler = event_tab[RT_WLAN_EVT_READY].handler;
+    user_parameter = event_tab[RT_WLAN_EVT_READY].parameter;
+    rt_hw_interrupt_enable(level);
+    if (handler)
+    {
+        handler(RT_WLAN_EVT_READY, &user_buff, user_parameter);
+    }
 }
 
 int rt_wlan_init(void)

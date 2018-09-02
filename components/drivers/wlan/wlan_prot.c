@@ -246,7 +246,7 @@ rt_err_t rt_wlan_prot_regisetr(struct rt_wlan_prot *prot)
     if ((prot == RT_NULL) || 
         (prot->type < RT_WLAN_PROT_LWIP) ||
         (prot->type >= RT_WLAN_PROT_MAX) ||
-        (prot->ops->protocol_recv == RT_NULL) ||
+        (prot->ops->prot_recv == RT_NULL) ||
         (prot->ops->dev_reg_callback == RT_NULL))
     {
         LOG_E("F:%s L:%d Parameter Wrongful", __FUNCTION__, __LINE__);
@@ -332,9 +332,15 @@ int rt_wlan_dev_transfer_prot(struct rt_wlan_device *wlan, void *buff, int len)
 
     if (prot != RT_NULL)
     {
-        prot->ops->protocol_recv(wlan, buff, len);
+        prot->ops->prot_recv(wlan, buff, len);
     }
     return len;
+}
+
+extern int rt_wlan_prot_ready_event(struct rt_wlan_device *wlan);
+int rt_wlan_prot_ready(struct rt_wlan_device *wlan)
+{
+    return rt_wlan_prot_ready_event(wlan);
 }
 
 void rt_wlan_prot_dump(void)

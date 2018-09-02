@@ -30,6 +30,7 @@
 #include <rtthread.h>
 #include <wlan_dev.h>
 #include <wlan_prot.h>
+#include <wlan_workqueue.h>
 #ifdef RT_USING_LWIP
 #include <netif/ethernetif.h>
 #include <lwip/netifapi.h>
@@ -48,7 +49,34 @@ struct lwip_prot_des
     struct rt_wlan_prot prot;
     struct eth_device eth;
     rt_int8_t connected_flag;
+    struct rt_timer timer;
 };
+
+static void netif_is_ready(void *parameter)
+{
+    ip_addr_t ip_addr = { 0 };
+    struct rt_wlan_device *wlan = parameter;
+    struct lwip_prot_des *lwip_prot = (struct lwip_prot_des *)wlan->prot;
+    struct eth_device *eth_dev = &lwip_prot->eth;
+
+    rt_timer_stop(&lwip_prot->timer);
+    if (ip_addr_cmp(&(eth_dev->netif->ip_addr), &ip_addr) != 0)
+    {
+        rt_timer_start(&lwip_prot->timer);
+        return;
+    }
+    if (rt_wlan_prot_ready(wlan) != 0)
+    {
+        rt_timer_start(&lwip_prot->timer);
+        return;
+    }
+    LOG_I("Got IP address : %s\n", ipaddr_ntoa(&(eth_dev->netif->ip_addr)));
+}
+
+static void timer_callback(void *parameter)
+{
+    rt_wlan_workqueue_dowork(netif_is_ready, parameter);
+}
 
 static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
 {
@@ -66,6 +94,7 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
 #ifdef RT_LWIP_DHCP
             dhcp_start(eth_dev->netif);
 #endif
+            rt_timer_start(&lwip_prot->timer);
         }
         else if (wlan->mode == RT_WLAN_AP)
         {
@@ -96,6 +125,7 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
 #ifdef RT_LWIP_DHCP
             dhcp_stop(eth_dev->netif);
 #endif
+            rt_timer_stop(&lwip_prot->timer);
         }
         else if (wlan->mode == RT_WLAN_AP)
         {
@@ -260,7 +290,7 @@ static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *
 {
     struct eth_device *eth = RT_NULL;
     static rt_uint8_t id = 0;
-    char name[4];
+    char eth_name[4], timer_name[16];
     rt_device_t device = RT_NULL;
     struct lwip_prot_des *lwip_prot;
 
@@ -272,15 +302,15 @@ static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *
     do
     {
         /* find ETH device name */
-        name[0] = 'w';
-        name[1] = '0' + id++;
-        name[2] = '\0';
-        device = rt_device_find(name);
+        eth_name[0] = 'w';
+        eth_name[1] = '0' + id++;
+        eth_name[2] = '\0';
+        device = rt_device_find(eth_name);
     } while (device);
 
     if (id > 9)
     {
-        LOG_E("F:%s L:%d not find Empty name", __FUNCTION__, __LINE__, name);
+        LOG_E("F:%s L:%d not find Empty name", __FUNCTION__, __LINE__, eth_name);
         return RT_NULL;
     }
 
@@ -311,7 +341,7 @@ static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *
     eth->eth_tx     = rt_wlan_lwip_protocol_send;
 
     /* register ETH device */
-    if (eth_device_init(eth, name) != RT_EOK)
+    if (eth_device_init(eth, eth_name) != RT_EOK)
     {
         LOG_E("eth device init failed");
         rt_device_close((rt_device_t)wlan);
@@ -319,8 +349,10 @@ static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *
         return RT_NULL;
     }
     rt_memcpy(&lwip_prot->prot, prot, sizeof(struct rt_wlan_prot));
-
-    LOG_I("eth device init ok name:%s", name);
+    rt_sprintf(timer_name, "%s_timer", eth_name);
+    rt_timer_init(&lwip_prot->timer, timer_name, timer_callback, wlan, rt_tick_from_millisecond(1000), 
+                    RT_TIMER_FLAG_SOFT_TIMER | RT_TIMER_FLAG_PERIODIC);
+    LOG_I("eth device init ok name:%s", eth_name);
 
     return &lwip_prot->prot;
 }

@@ -58,7 +58,7 @@ typedef enum
 struct rt_wlan_prot;
 struct rt_wlan_prot_ops
 {
-    rt_err_t (*protocol_recv)(struct rt_wlan_device *wlan, void *buff, int len);
+    rt_err_t (*prot_recv)(struct rt_wlan_device *wlan, void *buff, int len);
     struct rt_wlan_prot * (*dev_reg_callback)(struct rt_wlan_prot *prot, struct rt_wlan_device *wlan);
     void (*dev_unreg_callback)(struct rt_wlan_prot *prot, struct rt_wlan_device *wlan);
 };
@@ -89,6 +89,8 @@ int rt_wlan_dev_transfer_prot(struct rt_wlan_device *wlan, void *buff, int len);
 rt_err_t rt_wlan_prot_event_register(struct rt_wlan_prot *prot, rt_wlan_prot_event_t event, rt_wlan_prot_event_handler handler);
 
 rt_err_t rt_wlan_prot_event_unregister(struct rt_wlan_prot *prot, rt_wlan_prot_event_t event);
+
+int rt_wlan_prot_ready(struct rt_wlan_device *wlan);
 
 void rt_wlan_prot_dump(void);
 #endif
