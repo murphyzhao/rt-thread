@@ -566,7 +566,7 @@ static rt_err_t _rt_wlan_dev_control(rt_device_t dev, int cmd, void *args)
     return err;
 }
 
-struct rt_wlan_device *rt_wlan_dev_register(const char *name, const struct rt_wlan_dev_ops *ops, void *user_data)
+struct rt_wlan_device *rt_wlan_dev_register(const char *name, const struct rt_wlan_dev_ops *ops, rt_uint32_t flag, void *user_data)
 {
     struct rt_wlan_device *wlan;
 
@@ -596,6 +596,8 @@ struct rt_wlan_device *rt_wlan_dev_register(const char *name, const struct rt_wl
 
     wlan->ops = ops;
     wlan->user_data  = user_data;
+
+    wlan->flags = flag;
     rt_device_register(&wlan->device, name, RT_DEVICE_FLAG_RDWR);
 
     LOG_D("F:%s L:%d run", __FUNCTION__, __LINE__);

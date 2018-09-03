@@ -663,6 +663,18 @@ rt_err_t rt_wlan_set_mode(const char *dev_name, rt_wlan_mode_t mode)
         return RT_EOK;
     }
 
+    if ((mode == RT_WLAN_STATION) &&
+        (RT_WLAN_DEVICE(device)->flags & RT_WLAN_FLAG_AP_ONLY))
+    {
+        RT_WLAN_LOG_I("this device ap mode only");
+        return -RT_ERROR;
+    }
+    else if ((mode == RT_WLAN_AP) &&
+        (RT_WLAN_DEVICE(device)->flags & RT_WLAN_FLAG_STA_ONLY))
+    {
+        RT_WLAN_LOG_I("this device sta mode only");
+        return -RT_ERROR;
+    }
     /*
      * device == sta  and change to ap,  should deinit
      * device == ap   and change to sta, should deinit

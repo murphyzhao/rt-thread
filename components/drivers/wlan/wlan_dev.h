@@ -575,6 +575,6 @@ int rt_wlan_dev_report_data(struct rt_wlan_device *device, void *buff, int len);
 
 // void rt_wlan_dev_data_ready(struct rt_wlan_device *device, int len);   //
 
-struct rt_wlan_device *rt_wlan_dev_register(const char *name, const struct rt_wlan_dev_ops *ops, void *user_data);
+struct rt_wlan_device *rt_wlan_dev_register(const char *name, const struct rt_wlan_dev_ops *ops, rt_uint32_t flag, void *user_data);
 
 #endif
