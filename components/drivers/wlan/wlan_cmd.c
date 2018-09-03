@@ -189,9 +189,9 @@ static int wifi_scan(int argc, char *argv[])
             default:security = "UNKNOWN"; break;
             }
             rt_kprintf("%-14.14s ", security);
-            rt_kprintf("%4d ", scan_result->info[index].rssi);
+            rt_kprintf("%-4d ", scan_result->info[index].rssi);
             rt_kprintf("%3d ", scan_result->info[index].channel);
-            rt_kprintf("%d\n", scan_result->info[index].datarate / 1000000);
+            rt_kprintf("%4d\n", scan_result->info[index].datarate / 1000000);
         }
         rt_wlan_scan_result_clean();
     }
