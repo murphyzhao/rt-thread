@@ -35,6 +35,10 @@
 #define RT_WLAN_SCAN_WAIT_MS       (10 * 1000)
 #endif
 
+#ifndef RT_WLAN_SCAN_CACHE_NUM
+#define RT_WLAN_SCAN_CACHE_NUM     (50)
+#endif
+
 #ifndef RT_WLAN_CONNECT_WAIT_MS
 #define RT_WLAN_CONNECT_WAIT_MS    (10 * 1000)
 #endif

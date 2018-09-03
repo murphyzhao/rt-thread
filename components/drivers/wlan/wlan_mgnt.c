@@ -189,7 +189,7 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
 {
     struct rt_wlan_info *ptable;
     rt_err_t err = RT_EOK;
-    int i;
+    int i, insert = -1;
 
     if (_sta_is_null() || (info == RT_NULL)) return RT_EOK;
 
@@ -197,6 +197,9 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
         info->bssid[0], info->bssid[1], info->bssid[2], info->bssid[3], info->bssid[4], info->bssid[5]);
 
     err = rt_mutex_take(&scan_result_mutex, rt_tick_from_millisecond(timeout));
+    if (err != RT_EOK)
+        return err;
+
     /* de-duplicatio */
     for (i = 0; i < scan_result.num; i++)
     {
@@ -206,23 +209,89 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
             rt_mutex_release(&scan_result_mutex);
             return RT_EOK;
         }
-    }
-    if (err == RT_EOK)
-    {
-        /* realloc memory */
-        ptable = rt_realloc(scan_result.info, sizeof(struct rt_wlan_info) * (scan_result.num + 1));
-        if (ptable == RT_NULL)
+#ifndef RT_WLAN_SCAN_UNSORT
+        if (((scan_result.info[i].rssi < 0) && (info->rssi < 0) &&
+            (scan_result.info[i].rssi < info->rssi)) ||
+            (scan_result.info[i].datarate > info->datarate))
         {
-            rt_mutex_release(&scan_result_mutex);
-            RT_WLAN_LOG_E("wlan info malloc failed!");
-            return -RT_ENOMEM;
+            insert = i;
+            continue;
         }
-        /* copy info */
-        scan_result.info = ptable;
-        scan_result.info[scan_result.num] = *info;
-        scan_result.num ++;
-        rt_mutex_release(&scan_result_mutex);
+
+        /* Signal intensity comparison */
+        if ((info->rssi < 0) && (scan_result.info[i].rssi < 0))
+        {
+            if (info->rssi > scan_result.info[i].rssi)
+            {
+                insert = i;
+                continue;
+            }
+            else if (info->rssi < scan_result.info[i].rssi)
+            {
+                continue;
+            }
+        }
+
+        /* Channel comparison */
+        if (info->channel < scan_result.info[i].channel)
+        {
+            insert = i;
+            continue;
+        }
+        else if (info->channel > scan_result.info[i].channel)
+        {
+            continue;
+        }
+
+        /* data rate comparison */
+        if ((info->datarate > scan_result.info[i].datarate))
+        {
+            insert = i;
+            continue;
+        }
+        else if (info->datarate < scan_result.info[i].datarate)
+        {
+            continue;
+        }
+#endif
     }
+
+    /* Insert the end */
+    if (insert == -1)
+        insert = scan_result.num;
+
+    if (scan_result.num >= RT_WLAN_SCAN_CACHE_NUM)
+        return RT_EOK;
+
+    /* malloc memory */
+    ptable = rt_malloc(sizeof(struct rt_wlan_info) * (scan_result.num + 1));
+    if (ptable == RT_NULL)
+    {
+        rt_mutex_release(&scan_result_mutex);
+        RT_WLAN_LOG_E("wlan info malloc failed!");
+        return -RT_ENOMEM;
+    }
+    scan_result.num ++;
+
+    /* copy info */
+    for (i = 0; i < scan_result.num; i++)
+    {
+        if (i < insert)
+        {
+            ptable[i] = scan_result.info[i];
+        }
+        else if (i > insert)
+        {
+            ptable[i] = scan_result.info[i - 1];
+        }
+        else if (i == insert)
+        {
+            ptable[i] = *info;
+        }
+    }
+    rt_free(scan_result.info);
+    scan_result.info = ptable;
+    rt_mutex_release(&scan_result_mutex);
     return err;
 }
 
@@ -715,14 +784,36 @@ rt_bool_t rt_wlan_find_best_by_cache(const char *ssid, struct rt_wlan_info *info
     SRESULT_LOCK();
     for (i = 0; i < result->num; i++)
     {
-        if (((result->info[i].ssid.len == ssid_len) &&
-            (rt_memcmp((char *)&result->info[i].ssid.val[0], ssid, ssid_len) == 0)) &&
-            ((info_best == RT_NULL) ||
-            ((result->info[i].rssi < 0) && (info_best->rssi < 0) &&
-            (result->info[i].rssi > info_best->rssi)) ||
-            (result->info[i].datarate > info_best->datarate)))
+        /* SSID is equal. */
+        if ((result->info[i].ssid.len == ssid_len) &&
+            (rt_memcmp((char *)&result->info[i].ssid.val[0], ssid, ssid_len) == 0))
         {
-            info_best = &result->info[i];
+            if (info_best == RT_NULL)
+            {
+                info_best = &result->info[i];
+                continue;
+            }
+            /* Signal strength effective */
+            if ((result->info[i].rssi < 0) && (info_best->rssi < 0))
+            {
+                /* Find the strongest signal. */
+                if (result->info[i].rssi > info_best->rssi)
+                {
+                    info_best = &result->info[i];
+                    continue;
+                }
+                else if (result->info[i].rssi < info_best->rssi)
+                {
+                    continue;
+                }
+            }
+
+            /* Finding the fastest signal */
+            if (result->info[i].datarate > info_best->datarate)
+            {
+                info_best = &result->info[i];
+                continue;
+            }
         }
     }
     SRESULT_UNLOCK();
