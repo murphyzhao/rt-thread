@@ -225,16 +225,16 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
     {
         return -RT_ERROR;
     }
-
-    if (wlan->flags & RT_WLAN_FLAG_LWIP_FORCE)
+#ifdef RT_WLAN_PROT_LWIP_PBUF_FORCE
     {
         p = buff;
         if ((eth_dev->netif->input(p, eth_dev->netif)) != ERR_OK)
         {
             return -RT_ERROR;
         }
+        return RT_EOK;
     }
-    else
+#else
     {
         while (p == RT_NULL)
         {
@@ -266,8 +266,9 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
             p = RT_NULL;
         }
         LOG_D("F:%s L:%d netif iput success! len:%d", __FUNCTION__, __LINE__, len);
+        return RT_EOK;
     }
-    return RT_EOK;
+#endif
 }
 
 static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf* p)
@@ -282,12 +283,12 @@ static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf* p)
         return RT_EOK;
     }
 
-    if (wlan->flags & RT_WLAN_FLAG_LWIP_FORCE)
+#ifdef RT_WLAN_PROT_LWIP_PBUF_FORCE
     {
         rt_wlan_prot_transfer_dev(wlan, p, p->tot_len);
         return RT_EOK;
     }
-    else
+#else
     {
         /* sending data directly */
         if (p->len == p->tot_len)
@@ -309,8 +310,9 @@ static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf* p)
         rt_wlan_prot_transfer_dev(wlan, frame, p->tot_len);
         LOG_D("F:%s L:%d run len:%d", __FUNCTION__, __LINE__, p->tot_len);
         rt_free(frame);
+        return RT_EOK;
     }
-    return RT_EOK;
+#endif
 }
 
 static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *prot, struct rt_wlan_device *wlan)

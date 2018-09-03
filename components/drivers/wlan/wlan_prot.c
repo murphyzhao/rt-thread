@@ -190,11 +190,12 @@ rt_err_t rt_wlan_prot_attach_dev(struct rt_wlan_device *wlan, rt_wlan_prot_type_
     if (prot != RT_NULL)
         rt_wlan_prot_detach_dev(wlan);
 
-    if ((wlan->flags & RT_WLAN_FLAG_LWIP_FORCE) && (type != RT_WLAN_PROT_LWIP))
+#ifdef RT_WLAN_PROT_LWIP_PBUF_FORCE
+    if (type != RT_WLAN_PROT_LWIP)
     {
         return -RT_ERROR;
     }
-
+#endif
     /* find prot */
     for (i = 0; i < RT_WLAN_PROT_MAX; i++)
     {

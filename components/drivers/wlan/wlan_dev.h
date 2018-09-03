@@ -88,8 +88,6 @@ typedef enum
 #define RT_WLAN_FLAG_STA_ONLY    (0x1 << 0)
 #define RT_WLAN_FLAG_AP_ONLY     (0x1 << 1)
 
-#define RT_WLAN_FLAG_LWIP_FORCE  (0x1 << 16)
-
 #ifndef RT_WLAN_SSID_MAX_LENGTH
 #define RT_WLAN_SSID_MAX_LENGTH  (32)   /* SSID MAX LEN */
 #endif
