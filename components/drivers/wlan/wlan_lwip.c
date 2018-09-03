@@ -58,6 +58,7 @@ static void netif_is_ready(void *parameter)
     struct rt_wlan_device *wlan = parameter;
     struct lwip_prot_des *lwip_prot = (struct lwip_prot_des *)wlan->prot;
     struct eth_device *eth_dev = &lwip_prot->eth;
+    char str[IP4ADDR_STRLEN_MAX];
 
     rt_timer_stop(&lwip_prot->timer);
     if (ip_addr_cmp(&(eth_dev->netif->ip_addr), &ip_addr) != 0)
@@ -70,7 +71,11 @@ static void netif_is_ready(void *parameter)
         rt_timer_start(&lwip_prot->timer);
         return;
     }
-    LOG_I("Got IP address : %s\n", ipaddr_ntoa(&(eth_dev->netif->ip_addr)));
+    rt_memset(str, 0, IP4ADDR_STRLEN_MAX);
+    rt_enter_critical();
+    rt_memcpy(str, ipaddr_ntoa(&(eth_dev->netif->ip_addr)), IP4ADDR_STRLEN_MAX);
+    rt_exit_critical();
+    LOG_I("Got IP address : %s\n", str);
 }
 
 static void timer_callback(void *parameter)
