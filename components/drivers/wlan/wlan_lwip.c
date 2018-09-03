@@ -124,10 +124,9 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
             netifapi_netif_set_link_down(eth_dev->netif);
 #ifdef RT_LWIP_DHCP
             {
-                ip_addr_t ip_addr = { 0 };
+                ip4_addr_t ip_addr = { 0 };
                 dhcp_stop(eth_dev->netif);
-                netif_set_addr(eth_dev->netif, &ip_addr.u_addr.ip4, 
-                    &ip_addr.u_addr.ip4, &ip_addr.u_addr.ip4);
+                netif_set_addr(eth_dev->netif, &ip_addr, &ip_addr, &ip_addr);
             }
 #endif
             rt_timer_stop(&lwip_prot->timer);
