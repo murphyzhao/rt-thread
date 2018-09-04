@@ -52,35 +52,56 @@ struct lwip_prot_des
     struct rt_timer timer;
 };
 
-static void netif_is_ready(void *parameter)
+static void netif_is_ready(struct rt_work* work, void *parameter)
 {
     ip_addr_t ip_addr = { 0 };
     struct rt_wlan_device *wlan = parameter;
     struct lwip_prot_des *lwip_prot = (struct lwip_prot_des *)wlan->prot;
     struct eth_device *eth_dev = &lwip_prot->eth;
     char str[IP4ADDR_STRLEN_MAX];
+    rt_base_t level;
 
     rt_timer_stop(&lwip_prot->timer);
     if (ip_addr_cmp(&(eth_dev->netif->ip_addr), &ip_addr) != 0)
     {
         rt_timer_start(&lwip_prot->timer);
-        return;
+        goto exit;
     }
     if (rt_wlan_prot_ready(wlan) != 0)
     {
         rt_timer_start(&lwip_prot->timer);
-        return;
+        goto exit;
     }
     rt_memset(str, 0, IP4ADDR_STRLEN_MAX);
     rt_enter_critical();
     rt_memcpy(str, ipaddr_ntoa(&(eth_dev->netif->ip_addr)), IP4ADDR_STRLEN_MAX);
     rt_exit_critical();
     LOG_I("Got IP address : %s\n", str);
+exit:
+    level = rt_hw_interrupt_disable();
+    rt_memset(work, 0, sizeof(struct rt_work));
+    rt_hw_interrupt_enable(level);
 }
 
 static void timer_callback(void *parameter)
 {
-    rt_wlan_workqueue_dowork(netif_is_ready, parameter);
+    struct rt_workqueue *workqueue;
+    static struct rt_work work;
+    rt_base_t level;
+
+    workqueue = rt_wlan_get_workqueue();
+    if (workqueue != RT_NULL)
+    {
+        level = rt_hw_interrupt_disable();
+        rt_work_init(&work, netif_is_ready, parameter);
+        rt_hw_interrupt_enable(level);
+        if (rt_workqueue_dowork(workqueue, &work) != RT_EOK)
+        {
+            level = rt_hw_interrupt_disable();
+            rt_memset(&work, 0, sizeof(struct rt_work));
+            rt_hw_interrupt_enable(level);
+        }
+    }
 }
 
 static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
