@@ -25,7 +25,7 @@
  * Date           Author       Notes
  * 2018-08-03     RT-Thread    the first verion
  */
- 
+
 #ifndef __WLAN_MGNT_H__
 #define __WLAN_MGNT_H__
 
@@ -63,7 +63,8 @@
 /*state fot ap*/
 #define RT_WLAN_STATE_ACTIVE      (0x1 << 0)
 
-typedef enum {
+typedef enum
+{
     RT_WLAN_EVT_READY = 0,              /* connect and prot is ok, You can send data*/
     RT_WLAN_EVT_SCAN_DONE,              /* Scan a info */
     RT_WLAN_EVT_SCAN_REPORT,            /* Scan end */

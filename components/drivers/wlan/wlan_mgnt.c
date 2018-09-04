@@ -144,8 +144,8 @@ rt_inline int _ap_is_null(void)
 rt_inline rt_bool_t _is_do_connect(void)
 {
     if ((rt_wlan_get_autoreconnect_mode() == RT_FALSE) ||
-        (rt_wlan_is_connected() == RT_TRUE) ||
-        (_sta_mgnt.state & RT_WLAN_STATE_CONNECTING))
+            (rt_wlan_is_connected() == RT_TRUE) ||
+            (_sta_mgnt.state & RT_WLAN_STATE_CONNECTING))
     {
         return RT_FALSE;
     }
@@ -194,7 +194,7 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
     if (_sta_is_null() || (info == RT_NULL)) return RT_EOK;
 
     RT_WLAN_LOG_D("ssid:%s len:%d mac:%02x:%02x:%02x:%02x:%02x:%02x", info->ssid.val, info->ssid.len,
-        info->bssid[0], info->bssid[1], info->bssid[2], info->bssid[3], info->bssid[4], info->bssid[5]);
+                  info->bssid[0], info->bssid[1], info->bssid[2], info->bssid[3], info->bssid[4], info->bssid[5]);
 
     err = rt_mutex_take(&scan_result_mutex, rt_tick_from_millisecond(timeout));
     if (err != RT_EOK)
@@ -203,16 +203,16 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
     /* de-duplicatio */
     for (i = 0; i < scan_result.num; i++)
     {
-        if ((info->ssid.len == scan_result.info[i].ssid.len) && 
-            (rt_memcmp(&info->bssid[0], &scan_result.info[i].bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
+        if ((info->ssid.len == scan_result.info[i].ssid.len) &&
+                (rt_memcmp(&info->bssid[0], &scan_result.info[i].bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
         {
             rt_mutex_release(&scan_result_mutex);
             return RT_EOK;
         }
 #ifdef RT_WLAN_SCAN_SORT
         if (((scan_result.info[i].rssi < 0) && (info->rssi < 0) &&
-            (scan_result.info[i].rssi < info->rssi)) ||
-            (scan_result.info[i].datarate > info->datarate))
+                (scan_result.info[i].rssi < info->rssi)) ||
+                (scan_result.info[i].datarate > info->datarate))
         {
             insert = i;
             continue;
@@ -299,7 +299,7 @@ static rt_err_t rt_wlan_sta_info_add(struct rt_wlan_info *info, int timeout)
 {
     struct rt_wlan_sta_list *sta_list;
     rt_err_t err = RT_EOK;
-    
+
     if (_ap_is_null() || (info == RT_NULL)) return RT_EOK;
 
     err = rt_mutex_take(&sta_info_mutex, rt_tick_from_millisecond(timeout));
@@ -337,8 +337,8 @@ static rt_err_t rt_wlan_sta_info_del(struct rt_wlan_info *info, int timeout)
     if (err == RT_EOK)
     {
         /* traversing the list */
-        for (sta_list = sta_info.node, sta_prve = RT_NULL; sta_list != RT_NULL; 
-            sta_prve = sta_list, sta_list = sta_list->next)
+        for (sta_list = sta_info.node, sta_prve = RT_NULL; sta_list != RT_NULL;
+                sta_prve = sta_list, sta_list = sta_list->next)
         {
             /* find mac addr */
             if (rt_memcmp(&sta_list->info.bssid[0], &info->bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0)
@@ -385,7 +385,7 @@ static rt_err_t rt_wlan_sta_info_del_all(void)
     return err;
 }
 
-static void rt_wlan_auto_connect_run(struct rt_work* work, void *parameter)
+static void rt_wlan_auto_connect_run(struct rt_work *work, void *parameter)
 {
     static rt_uint32_t id = 0;
     struct rt_wlan_cfg_info cfg_info = { 0 };
@@ -518,7 +518,7 @@ static void rt_wlan_event_dispatch(struct rt_wlan_device *device, rt_wlan_dev_ev
 
     if (buff) user_buff = *buff;
     /* 事件处理 */
-    switch(event)
+    switch (event)
     {
     case RT_WLAN_DEV_EVT_CONNECT:
     {
@@ -668,11 +668,11 @@ rt_err_t rt_wlan_set_mode(const char *dev_name, rt_wlan_mode_t mode)
         return -RT_EINVAL;
     }
 
-    RT_WLAN_LOG_D("%s is run dev_name:%s mode:%s%s%s", __FUNCTION__, dev_name, 
-        mode == RT_WLAN_NONE ? "NONE" : "",
-        mode == RT_WLAN_STATION ? "STA" : "",
-        mode == RT_WLAN_AP ? "AP" : ""
-        );
+    RT_WLAN_LOG_D("%s is run dev_name:%s mode:%s%s%s", __FUNCTION__, dev_name,
+                  mode == RT_WLAN_NONE ? "NONE" : "",
+                  mode == RT_WLAN_STATION ? "STA" : "",
+                  mode == RT_WLAN_AP ? "AP" : ""
+                 );
 
     /* find device */
     device = rt_device_find(dev_name);
@@ -688,13 +688,13 @@ rt_err_t rt_wlan_set_mode(const char *dev_name, rt_wlan_mode_t mode)
     }
 
     if ((mode == RT_WLAN_STATION) &&
-        (RT_WLAN_DEVICE(device)->flags & RT_WLAN_FLAG_AP_ONLY))
+            (RT_WLAN_DEVICE(device)->flags & RT_WLAN_FLAG_AP_ONLY))
     {
         RT_WLAN_LOG_I("this device ap mode only");
         return -RT_ERROR;
     }
     else if ((mode == RT_WLAN_AP) &&
-        (RT_WLAN_DEVICE(device)->flags & RT_WLAN_FLAG_STA_ONLY))
+             (RT_WLAN_DEVICE(device)->flags & RT_WLAN_FLAG_STA_ONLY))
     {
         RT_WLAN_LOG_I("this device sta mode only");
         return -RT_ERROR;
@@ -705,7 +705,7 @@ rt_err_t rt_wlan_set_mode(const char *dev_name, rt_wlan_mode_t mode)
     */
     MGNT_LOCK();
     if (((mode == RT_WLAN_STATION) && (RT_WLAN_DEVICE(device) == AP_DEVICE())) ||
-        ((mode == RT_WLAN_AP) && (RT_WLAN_DEVICE(device) == STA_DEVICE())))
+            ((mode == RT_WLAN_AP) && (RT_WLAN_DEVICE(device) == STA_DEVICE())))
     {
         err = rt_wlan_set_mode(dev_name, RT_WLAN_NONE);
         if (err != RT_EOK)
@@ -800,9 +800,9 @@ rt_wlan_mode_t rt_wlan_get_mode(const char *dev_name)
     /* get mode */
     mode = RT_WLAN_DEVICE(device)->mode;
     RT_WLAN_LOG_D("%s is run dev_name:%s mode:%s%s%s", __FUNCTION__, dev_name,
-        mode == RT_WLAN_NONE ? "NONE" : "",
-        mode == RT_WLAN_STATION ? "STA" : "",
-        mode == RT_WLAN_AP ? "AP" : "");
+                  mode == RT_WLAN_NONE ? "NONE" : "",
+                  mode == RT_WLAN_STATION ? "STA" : "",
+                  mode == RT_WLAN_AP ? "AP" : "");
 
     return mode;
 }
@@ -822,7 +822,7 @@ rt_bool_t rt_wlan_find_best_by_cache(const char *ssid, struct rt_wlan_info *info
     {
         /* SSID is equal. */
         if ((result->info[i].ssid.len == ssid_len) &&
-            (rt_memcmp((char *)&result->info[i].ssid.val[0], ssid, ssid_len) == 0))
+                (rt_memcmp((char *)&result->info[i].ssid.val[0], ssid, ssid_len) == 0))
         {
             if (info_best == RT_NULL)
             {
@@ -885,7 +885,7 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
     }
 
     if ((rt_wlan_is_connected() == RT_TRUE) &&
-        (rt_strcmp((char *)&_sta_mgnt.info.ssid.val[0], ssid) == 0))
+            (rt_strcmp((char *)&_sta_mgnt.info.ssid.val[0], ssid) == 0))
     {
         RT_WLAN_LOG_I("wifi is connect ssid:%s", ssid);
         return RT_EOK;
@@ -907,8 +907,8 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
         return -RT_ERROR;
     }
 
-    RT_WLAN_LOG_D("find best info ssid:%s mac: %02x %02x %02x %02x %02x %02x", 
-        info.ssid.val, info.bssid[0], info.bssid[1], info.bssid[2], info.bssid[3], info.bssid[4], info.bssid[5]);
+    RT_WLAN_LOG_D("find best info ssid:%s mac: %02x %02x %02x %02x %02x %02x",
+                  info.ssid.val, info.bssid[0], info.bssid[1], info.bssid[2], info.bssid[3], info.bssid[4], info.bssid[5]);
 
     /* create event wait complete */
     complete = rt_malloc(sizeof(struct rt_wlan_complete_des));
@@ -920,7 +920,7 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
     }
     rt_event_init(&complete->complete, "join", RT_IPC_FLAG_FIFO);
     complete->event_flag = 0;
-    for (i = 0; i < sizeof(complete_tab)/sizeof(complete_tab[0]); i++)
+    for (i = 0; i < sizeof(complete_tab) / sizeof(complete_tab[0]); i++)
     {
         if (complete_tab[i] == RT_NULL)
         {
@@ -949,8 +949,8 @@ rt_err_t rt_wlan_connect(const char *ssid, const char *password)
     {
         /* wait event */
         recved = 0;
-        rt_event_recv(&complete->complete, set, RT_EVENT_FLAG_OR, 
-            rt_tick_from_millisecond(RT_WLAN_CONNECT_WAIT_MS), &recved);
+        rt_event_recv(&complete->complete, set, RT_EVENT_FLAG_OR,
+                      rt_tick_from_millisecond(RT_WLAN_CONNECT_WAIT_MS), &recved);
     }
     complete_tab[i] = RT_NULL;
     rt_event_detach(&complete->complete);
@@ -1000,10 +1000,10 @@ rt_err_t rt_wlan_connect_adv(struct rt_wlan_info *info, const char *password)
     if (rt_wlan_is_connected())
     {
         if ((_sta_mgnt.info.ssid.len == info->ssid.len) &&
-            (_sta_mgnt.key.len == password_len) &&
-            (rt_memcmp(&_sta_mgnt.info.ssid.val[0], &info->ssid.val[0], info->ssid.len) == 0) &&
-            (rt_memcmp(&_sta_mgnt.info.bssid[0], &info->bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0) &&
-            (rt_memcmp(&_sta_mgnt.key.val[0], password, password_len) == 0))
+                (_sta_mgnt.key.len == password_len) &&
+                (rt_memcmp(&_sta_mgnt.info.ssid.val[0], &info->ssid.val[0], info->ssid.len) == 0) &&
+                (rt_memcmp(&_sta_mgnt.info.bssid[0], &info->bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0) &&
+                (rt_memcmp(&_sta_mgnt.key.val[0], password, password_len) == 0))
         {
             RT_WLAN_LOG_I("wifi Already Connected");
             MGNT_UNLOCK();
@@ -1072,7 +1072,7 @@ rt_err_t rt_wlan_set_mac(rt_uint8_t mac[6])
 
     if (_sta_is_null()) return -RT_EIO;
     RT_WLAN_LOG_D("%s is run mac: %02x:%02x:%02x:%02x:%02x:%02x",
-        __FUNCTION__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                  __FUNCTION__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     MGNT_LOCK();
     err = rt_wlan_dev_set_mac(STA_DEVICE(), mac);
@@ -1100,7 +1100,7 @@ rt_err_t rt_wlan_get_mac(rt_uint8_t mac[6])
         return err;
     }
     RT_WLAN_LOG_D("%s is run mac: %02x:%02x:%02x:%02x:%02x:%02x",
-                    __FUNCTION__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                  __FUNCTION__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     MGNT_UNLOCK();
     return err;
 }
@@ -1167,7 +1167,7 @@ rt_err_t rt_wlan_start_ap(const char *ssid, const char *password)
     }
     rt_event_init(&complete->complete, "ap", RT_IPC_FLAG_FIFO);
     complete->event_flag = 0;
-    for (i = 0; i < sizeof(complete_tab)/sizeof(complete_tab[0]); i++)
+    for (i = 0; i < sizeof(complete_tab) / sizeof(complete_tab[0]); i++)
     {
         if (complete_tab[i] == RT_NULL)
         {
@@ -1195,8 +1195,8 @@ rt_err_t rt_wlan_start_ap(const char *ssid, const char *password)
     if (!(recved & set))
     {
         recved = 0;
-        rt_event_recv(&complete->complete, set, RT_EVENT_FLAG_OR, 
-            rt_tick_from_millisecond(RT_WLAN_CONNECT_WAIT_MS), &recved);
+        rt_event_recv(&complete->complete, set, RT_EVENT_FLAG_OR,
+                      rt_tick_from_millisecond(RT_WLAN_CONNECT_WAIT_MS), &recved);
     }
     complete_tab[i] = RT_NULL;
     rt_event_detach(&complete->complete);
@@ -1232,12 +1232,12 @@ rt_err_t rt_wlan_start_ap_adv(struct rt_wlan_info *info, const char *password)
     if (rt_wlan_ap_is_active())
     {
         if ((_ap_mgnt.info.ssid.len == info->ssid.len) &&
-            (_ap_mgnt.info.security == info->security) &&
-            (_ap_mgnt.info.channel == info->channel) &&
-            (_ap_mgnt.info.hidden == info->hidden) &&
-            (_ap_mgnt.key.len == password_len) &&
-            (rt_memcmp(&_ap_mgnt.info.ssid.val[0], &info->ssid.val[0], info->ssid.len) == 0) &&
-            (rt_memcmp(&_ap_mgnt.key.val[0], password, password_len)))
+                (_ap_mgnt.info.security == info->security) &&
+                (_ap_mgnt.info.channel == info->channel) &&
+                (_ap_mgnt.info.hidden == info->hidden) &&
+                (_ap_mgnt.key.len == password_len) &&
+                (rt_memcmp(&_ap_mgnt.info.ssid.val[0], &info->ssid.val[0], info->ssid.len) == 0) &&
+                (rt_memcmp(&_ap_mgnt.key.val[0], password, password_len)))
         {
             RT_WLAN_LOG_D("wifi Already Start");
             MGNT_UNLOCK();
@@ -1340,8 +1340,8 @@ rt_err_t rt_wlan_ap_deauth_sta(rt_uint8_t *mac)
     rt_bool_t find_flag = RT_FALSE;
 
     if (_ap_is_null()) return -RT_EIO;
-    RT_WLAN_LOG_D("%s is run mac: %02x:%02x:%02x:%02x:%02x:%02x:%d", 
-        __FUNCTION__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    RT_WLAN_LOG_D("%s is run mac: %02x:%02x:%02x:%02x:%02x:%02x:%d",
+                  __FUNCTION__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     if (mac == RT_NULL)
     {
@@ -1439,7 +1439,7 @@ rt_bool_t rt_wlan_get_autoreconnect_mode(void)
     return enable;
 }
 
-/* Call the underlying scan function, which is asynchronous. 
+/* Call the underlying scan function, which is asynchronous.
 The hotspots scanned are returned by callbacks */
 rt_err_t rt_wlan_scan(void)
 {
@@ -1491,7 +1491,7 @@ struct rt_wlan_scan_result *rt_wlan_scan_with_info(struct rt_wlan_info *info)
     }
     rt_event_init(&complete->complete, "scan", RT_IPC_FLAG_FIFO);
     complete->event_flag = 0;
-    for (i = 0; i < sizeof(complete_tab)/sizeof(complete_tab[0]); i++)
+    for (i = 0; i < sizeof(complete_tab) / sizeof(complete_tab[0]); i++)
     {
         if (complete_tab[i] == RT_NULL)
         {
@@ -1521,7 +1521,7 @@ struct rt_wlan_scan_result *rt_wlan_scan_with_info(struct rt_wlan_info *info)
         recved = 0;
         RT_WLAN_LOG_D("wait scan done &complete->complete:0x%08x", &complete->complete);
         rt_event_recv(&complete->complete, set, RT_EVENT_FLAG_OR,
-            rt_tick_from_millisecond(RT_WLAN_CONNECT_WAIT_MS), &recved);
+                      rt_tick_from_millisecond(RT_WLAN_CONNECT_WAIT_MS), &recved);
     }
     complete_tab[i] = RT_NULL;
     rt_event_detach(&complete->complete);
@@ -1708,7 +1708,7 @@ int rt_wlan_prot_ready_event(struct rt_wlan_device *wlan)
     struct rt_wlan_buff user_buff = { 0 };
 
     if ((wlan == RT_NULL) || (_sta_mgnt.device != wlan) ||
-        (!(_sta_mgnt.state & RT_WLAN_STATE_CONNECT)))
+            (!(_sta_mgnt.state & RT_WLAN_STATE_CONNECT)))
     {
         return -1;
     }
@@ -1745,7 +1745,7 @@ int rt_wlan_init(void)
         rt_timer_init(&reconnect_time, "wifi_tim", rt_wlan_cyclic_check, RT_NULL, DISCONNECT_RESPONSE_TICK, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
         rt_timer_start(&reconnect_time);
         /* create event */
-        event_box = rt_mb_create ("wlan", RT_WLAN_EBOX_NUM, RT_IPC_FLAG_FIFO);
+        event_box = rt_mb_create("wlan", RT_WLAN_EBOX_NUM, RT_IPC_FLAG_FIFO);
         if (event_box == RT_NULL)
             RT_ASSERT(event_box != RT_NULL);
         _init_flag = 1;

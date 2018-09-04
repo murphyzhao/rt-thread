@@ -69,9 +69,9 @@ static rt_uint16_t rt_wlan_cal_crc(rt_uint8_t *buff, int len)
     {
         wChar = *(buff++);
         wCRCin ^= (wChar << 8);
-        for(int i = 0;i < 8;i++)
+        for (int i = 0; i < 8; i++)
         {
-            if(wCRCin & 0x8000)
+            if (wCRCin & 0x8000)
                 wCRCin = (wCRCin << 1) ^ wCPoly;
             else
                 wCRCin = wCRCin << 1;
@@ -129,7 +129,7 @@ rt_err_t rt_wlan_cfg_cache_save(void)
     /* CRC */
     info_pkg->crc = rt_wlan_cal_crc((rt_uint8_t *)cfg_cache->cfg_info, sizeof(struct rt_wlan_cfg_info) * cfg_cache->num);
     rt_memcpy(((rt_uint8_t *)info_pkg) + sizeof(struct cfg_save_info_head),
-        cfg_cache->cfg_info, sizeof(struct rt_wlan_cfg_info) * cfg_cache->num);
+              cfg_cache->cfg_info, sizeof(struct rt_wlan_cfg_info) * cfg_cache->num);
     if (cfg_ops->write_cfg(info_pkg, len) != len)
         err =  -RT_ERROR;
     rt_free(info_pkg);
@@ -152,8 +152,8 @@ rt_err_t rt_wlan_cfg_cache_refresh(void)
 
     /* check callback */
     if ((cfg_ops == RT_NULL) ||
-        (cfg_ops->get_len == RT_NULL) || 
-        (cfg_ops->read_cfg == RT_NULL))
+            (cfg_ops->get_len == RT_NULL) ||
+            (cfg_ops->read_cfg == RT_NULL))
         return -RT_ERROR;
 
     WLAN_CFG_LOCK();
@@ -186,9 +186,9 @@ rt_err_t rt_wlan_cfg_cache_refresh(void)
     LOG_D("hred->crc:0x%04x crc:0x%04x", head->crc, crc);
     /* check */
     if ((head->magic != RT_WLAN_CFG_MAGIC) ||
-        (head->len != len) ||
-        (head->num != (len - sizeof(struct cfg_save_info_head)) / sizeof(struct rt_wlan_cfg_info)) ||
-        (head->crc != crc))
+            (head->len != len) ||
+            (head->num != (len - sizeof(struct cfg_save_info_head)) / sizeof(struct rt_wlan_cfg_info)) ||
+            (head->crc != crc))
     {
         rt_free(head);
         WLAN_CFG_UNLOCK();
@@ -203,9 +203,9 @@ rt_err_t rt_wlan_cfg_cache_refresh(void)
         for (j = 0; j < cfg_cache->num; j++)
         {
             if ((cfg_cache->cfg_info[j].info.ssid.len == cfg_info[i].info.ssid.len) &&
-            (rt_memcmp(&cfg_cache->cfg_info[j].info.ssid.val[0], &cfg_info[i].info.ssid.val[0], 
-            cfg_cache->cfg_info[j].info.ssid.len) == 0) &&
-            (rt_memcmp(&cfg_cache->cfg_info[j].info.bssid[0], &cfg_info[i].info.bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
+                    (rt_memcmp(&cfg_cache->cfg_info[j].info.ssid.val[0], &cfg_info[i].info.ssid.val[0],
+                               cfg_cache->cfg_info[j].info.ssid.len) == 0) &&
+                    (rt_memcmp(&cfg_cache->cfg_info[j].info.bssid[0], &cfg_info[i].info.bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
             {
                 equal_flag = RT_TRUE;
                 break;
@@ -277,17 +277,17 @@ rt_err_t rt_wlan_cfg_save(struct rt_wlan_cfg_info *cfg_info)
     for (i = 0; i < cfg_cache->num; i++)
     {
         if ((cfg_cache->cfg_info[i].info.ssid.len == cfg_info->info.ssid.len) &&
-            (rt_memcmp(&cfg_cache->cfg_info[i].info.ssid.val[0], &cfg_info->info.ssid.val[0], 
-            cfg_cache->cfg_info[i].info.ssid.len) == 0) &&
-            (rt_memcmp(&cfg_cache->cfg_info[i].info.bssid[0], &cfg_info->info.bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
+                (rt_memcmp(&cfg_cache->cfg_info[i].info.ssid.val[0], &cfg_info->info.ssid.val[0],
+                           cfg_cache->cfg_info[i].info.ssid.len) == 0) &&
+                (rt_memcmp(&cfg_cache->cfg_info[i].info.bssid[0], &cfg_info->info.bssid[0], RT_WLAN_BSSID_MAX_LENGTH) == 0))
         {
             idx = i;
             break;
         }
     }
 
-    if ((idx == 0) && (cfg_cache->cfg_info[i].key.len == cfg_info->key.len) && 
-        (rt_memcmp(&cfg_cache->cfg_info[i].key.val[0], &cfg_info->key.val[0], cfg_info->key.len) == 0))
+    if ((idx == 0) && (cfg_cache->cfg_info[i].key.len == cfg_info->key.len) &&
+            (rt_memcmp(&cfg_cache->cfg_info[i].key.val[0], &cfg_info->key.val[0], cfg_info->key.len) == 0))
     {
         WLAN_CFG_UNLOCK();
         return RT_EOK;
@@ -308,9 +308,9 @@ rt_err_t rt_wlan_cfg_save(struct rt_wlan_cfg_info *cfg_info)
 
     /* move cache info */
     i = (i >= RT_WLAN_CFG_INFO_MAX ? RT_WLAN_CFG_INFO_MAX - 1 : i);
-    for ( ; i; i--)
+    for (; i; i--)
     {
-        cfg_cache->cfg_info[i] = cfg_cache->cfg_info[i-1];
+        cfg_cache->cfg_info[i] = cfg_cache->cfg_info[i - 1];
     }
     /* add iteam to head */
     cfg_cache->cfg_info[i] = *cfg_info;
@@ -346,7 +346,7 @@ int rt_wlan_cfg_delete_index(int index)
     struct rt_wlan_cfg_info *cfg_info;
     int i;
 
-    rt_wlan_cfg_init();    
+    rt_wlan_cfg_init();
 
     if (index < 0)
         return -1;
@@ -402,7 +402,7 @@ void rt_wlan_cfg_dump(void)
     int index = 0;
     struct rt_wlan_info *info;
     struct rt_wlan_key *key;
-    char *security; 
+    char *security;
 
     rt_wlan_cfg_init();
 
@@ -417,33 +417,55 @@ void rt_wlan_cfg_dump(void)
             rt_kprintf("%-32.32s", &info->ssid.val[0]);
         else
             rt_kprintf("%-32.32s", " ");
-        
+
         if (key->len)
             rt_kprintf("%-32.32s", &key->val[0]);
         else
             rt_kprintf("%-32.32s", " ");
 
         rt_kprintf("%02x:%02x:%02x:%02x:%02x:%02x  ",
-            info->bssid[0],
-            info->bssid[1],
-            info->bssid[2],
-            info->bssid[3],
-            info->bssid[4],
-            info->bssid[5]
-        );
+                   info->bssid[0],
+                   info->bssid[1],
+                   info->bssid[2],
+                   info->bssid[3],
+                   info->bssid[4],
+                   info->bssid[5]
+                  );
         switch (info->security)
         {
-        case SECURITY_OPEN: security = "OPEN"; break;
-        case SECURITY_WEP_PSK: security = "WEP_PSK"; break;
-        case SECURITY_WEP_SHARED: security = "WEP_SHARED"; break;
-        case SECURITY_WPA_TKIP_PSK: security = "WPA_TKIP_PSK"; break;
-        case SECURITY_WPA_AES_PSK: security = "WPA_AES_PSK"; break;
-        case SECURITY_WPA2_AES_PSK: security = "WPA2_AES_PSK"; break;
-        case SECURITY_WPA2_TKIP_PSK: security = "WPA2_TKIP_PSK"; break;
-        case SECURITY_WPA2_MIXED_PSK: security = "WPA2_MIXED_PSK"; break;
-        case SECURITY_WPS_OPEN: security = "WPS_OPEN"; break;
-        case SECURITY_WPS_SECURE: security = "WPS_SECURE"; break;
-        default:security = "UNKNOWN"; break;
+        case SECURITY_OPEN:
+            security = "OPEN";
+            break;
+        case SECURITY_WEP_PSK:
+            security = "WEP_PSK";
+            break;
+        case SECURITY_WEP_SHARED:
+            security = "WEP_SHARED";
+            break;
+        case SECURITY_WPA_TKIP_PSK:
+            security = "WPA_TKIP_PSK";
+            break;
+        case SECURITY_WPA_AES_PSK:
+            security = "WPA_AES_PSK";
+            break;
+        case SECURITY_WPA2_AES_PSK:
+            security = "WPA2_AES_PSK";
+            break;
+        case SECURITY_WPA2_TKIP_PSK:
+            security = "WPA2_TKIP_PSK";
+            break;
+        case SECURITY_WPA2_MIXED_PSK:
+            security = "WPA2_MIXED_PSK";
+            break;
+        case SECURITY_WPS_OPEN:
+            security = "WPS_OPEN";
+            break;
+        case SECURITY_WPS_SECURE:
+            security = "WPS_SECURE";
+            break;
+        default:
+            security = "UNKNOWN";
+            break;
         }
         rt_kprintf("%-14.14s  ", security);
         rt_kprintf("%3d    \n", info->channel);

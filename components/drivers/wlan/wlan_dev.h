@@ -139,7 +139,8 @@ typedef enum
                                                                                      Do not pass this to the join function! */
 } rt_wlan_security_t;
 
-typedef enum {
+typedef enum
+{
     RT_802_11_BAND_5GHZ  =  0,             /**< Denotes 5GHz radio band   */
     RT_802_11_BAND_2_4GHZ =  1,            /**< Denotes 2.4GHz radio band */
     RT_802_11_BAND_UNKNOWN = 0x7fffffff,   /**< unknown */
@@ -380,7 +381,7 @@ typedef enum
     RT_COUNTRY_ZAMBIA,
     RT_COUNTRY_ZIMBABWE,
     RT_COUNTRY_UNKNOWN
-}rt_country_code_t;
+} rt_country_code_t;
 
 struct rt_wlan_device;
 struct rt_wlan_buff;
@@ -389,7 +390,7 @@ typedef void (*rt_wlan_dev_event_handler)(struct rt_wlan_device *device, rt_wlan
 
 typedef void (*rt_wlan_pormisc_callback_t)(uint8_t *data, int len);
 
-struct rt_wlan_ssid 
+struct rt_wlan_ssid
 {
     rt_uint8_t len;
     rt_uint8_t val[RT_WLAN_SSID_MAX_LENGTH + 1];
@@ -437,23 +438,23 @@ struct rt_wlan_buff
 
 struct rt_filter_pattern
 {
-	rt_uint16_t	offset;     /**< Offset in bytes to start filtering (referenced to the start of the ethernet packet) */
-	rt_uint16_t	mask_size;  /**< Size of the mask in bytes */
-	rt_uint8_t*	mask;       /**< Pattern mask bytes to be ANDed with the pattern eg. "\xff00" (must be in network byte order) */
-	rt_uint8_t*	pattern;    /**< Pattern bytes used to filter eg. "\x0800"  (must be in network byte order) */
+    rt_uint16_t offset;     /**< Offset in bytes to start filtering (referenced to the start of the ethernet packet) */
+    rt_uint16_t mask_size;  /**< Size of the mask in bytes */
+    rt_uint8_t *mask;       /**< Pattern mask bytes to be ANDed with the pattern eg. "\xff00" (must be in network byte order) */
+    rt_uint8_t *pattern;    /**< Pattern bytes used to filter eg. "\x0800"  (must be in network byte order) */
 };
 
-typedef enum 
+typedef enum
 {
-	RT_POSITIVE_MATCHING  = 0, /**< Receive the data matching with this pattern and discard the other data   */
-	RT_NEGATIVE_MATCHING  = 1  /**< Discard the data matching with this pattern and receive the other data */
+    RT_POSITIVE_MATCHING  = 0, /**< Receive the data matching with this pattern and discard the other data   */
+    RT_NEGATIVE_MATCHING  = 1  /**< Discard the data matching with this pattern and receive the other data */
 } rt_filter_rule_t;
 
 struct rt_wlan_filter
 {
-	struct rt_filter_pattern patt;
-	rt_filter_rule_t rule;
-	rt_uint8_t enable;
+    struct rt_filter_pattern patt;
+    rt_filter_rule_t rule;
+    rt_uint8_t enable;
 };
 
 struct rt_wlan_dev_event_desc
@@ -502,27 +503,27 @@ struct rt_scan_info
 
 struct rt_wlan_dev_ops
 {
-    rt_err_t (*wlan_init)                 (struct rt_wlan_device *wlan);
-    rt_err_t (*wlan_mode)                 (struct rt_wlan_device *wlan, rt_wlan_mode_t mode);
-    rt_err_t (*wlan_scan)                 (struct rt_wlan_device *wlan, struct rt_scan_info *scan_info);
-    rt_err_t (*wlan_join)                 (struct rt_wlan_device *wlan, struct rt_sta_info *sta_info);
-    rt_err_t (*wlan_softap)               (struct rt_wlan_device *wlan, struct rt_ap_info *ap_info);
-    rt_err_t (*wlan_disconnect)           (struct rt_wlan_device *wlan);
-    rt_err_t (*wlan_ap_stop)              (struct rt_wlan_device *wlan);
-    rt_err_t (*wlan_ap_deauth)            (struct rt_wlan_device *wlan, rt_uint8_t mac[]);
-    rt_err_t (*wlan_scan_stop)            (struct rt_wlan_device *wlan);
-    int (*wlan_get_rssi)                  (struct rt_wlan_device *wlan);
-    rt_err_t (*wlan_powersave)            (struct rt_wlan_device *wlan, rt_bool_t enable);
-    rt_err_t (*wlan_cfg_promisc)          (struct rt_wlan_device *wlan, rt_bool_t start);
-    rt_err_t (*wlan_cfg_filter)           (struct rt_wlan_device *wlan, struct rt_wlan_filter *filter);
-    rt_err_t (*wlan_set_channel)          (struct rt_wlan_device *wlan, int channel);
-    int (*wlan_get_channel)               (struct rt_wlan_device *wlan);
-    rt_err_t (*wlan_set_country)          (struct rt_wlan_device *wlan, rt_country_code_t country_code);
-    rt_country_code_t (*wlan_get_country) (struct rt_wlan_device *wlan);
-    rt_err_t (*wlan_set_mac)              (struct rt_wlan_device *wlan, rt_uint8_t mac[]);
-    rt_err_t (*wlan_get_mac)              (struct rt_wlan_device *wlan, rt_uint8_t mac[]);
-    int (*wlan_recv)                      (struct rt_wlan_device *wlan, void *buff, int len);
-    int (*wlan_send)                      (struct rt_wlan_device *wlan, void *buff, int len);
+    rt_err_t (*wlan_init)(struct rt_wlan_device *wlan);
+    rt_err_t (*wlan_mode)(struct rt_wlan_device *wlan, rt_wlan_mode_t mode);
+    rt_err_t (*wlan_scan)(struct rt_wlan_device *wlan, struct rt_scan_info *scan_info);
+    rt_err_t (*wlan_join)(struct rt_wlan_device *wlan, struct rt_sta_info *sta_info);
+    rt_err_t (*wlan_softap)(struct rt_wlan_device *wlan, struct rt_ap_info *ap_info);
+    rt_err_t (*wlan_disconnect)(struct rt_wlan_device *wlan);
+    rt_err_t (*wlan_ap_stop)(struct rt_wlan_device *wlan);
+    rt_err_t (*wlan_ap_deauth)(struct rt_wlan_device *wlan, rt_uint8_t mac[]);
+    rt_err_t (*wlan_scan_stop)(struct rt_wlan_device *wlan);
+    int (*wlan_get_rssi)(struct rt_wlan_device *wlan);
+    rt_err_t (*wlan_powersave)(struct rt_wlan_device *wlan, rt_bool_t enable);
+    rt_err_t (*wlan_cfg_promisc)(struct rt_wlan_device *wlan, rt_bool_t start);
+    rt_err_t (*wlan_cfg_filter)(struct rt_wlan_device *wlan, struct rt_wlan_filter *filter);
+    rt_err_t (*wlan_set_channel)(struct rt_wlan_device *wlan, int channel);
+    int (*wlan_get_channel)(struct rt_wlan_device *wlan);
+    rt_err_t (*wlan_set_country)(struct rt_wlan_device *wlan, rt_country_code_t country_code);
+    rt_country_code_t (*wlan_get_country)(struct rt_wlan_device *wlan);
+    rt_err_t (*wlan_set_mac)(struct rt_wlan_device *wlan, rt_uint8_t mac[]);
+    rt_err_t (*wlan_get_mac)(struct rt_wlan_device *wlan, rt_uint8_t mac[]);
+    int (*wlan_recv)(struct rt_wlan_device *wlan, void *buff, int len);
+    int (*wlan_send)(struct rt_wlan_device *wlan, void *buff, int len);
 };
 
 rt_err_t rt_wlan_dev_init(struct rt_wlan_device *device, rt_wlan_mode_t mode);
@@ -530,7 +531,7 @@ rt_err_t rt_wlan_dev_init(struct rt_wlan_device *device, rt_wlan_mode_t mode);
 rt_err_t rt_wlan_dev_connect(struct rt_wlan_device *device, struct rt_wlan_info *info, const char *password, int password_len);
 
 rt_err_t rt_wlan_dev_disconnect(struct rt_wlan_device *device);
-  
+
 rt_err_t rt_wlan_dev_ap_start(struct rt_wlan_device *device, struct rt_wlan_info *info, const char *password, int password_len);
 
 rt_err_t rt_wlan_dev_ap_stop(struct rt_wlan_device *device);

@@ -112,7 +112,7 @@ static void rt_wlan_prot_event_handle(struct rt_wlan_device *wlan, rt_wlan_dev_e
     for (i = 0; i < RT_WLAN_PROT_MAX; i++)
     {
         if ((prot_event_tab[prot_event][i].handler != RT_NULL) &&
-            (prot_event_tab[prot_event][i].prot->type == wlan_prot->type))
+                (prot_event_tab[prot_event][i].prot->type == wlan_prot->type))
         {
             handler = prot_event_tab[prot_event][i].handler;
             prot = prot_event_tab[prot_event][i].prot;
@@ -249,11 +249,11 @@ rt_err_t rt_wlan_prot_regisetr(struct rt_wlan_prot *prot)
     int i;
 
     /* Parameter checking */
-    if ((prot == RT_NULL) || 
-        (prot->type < RT_WLAN_PROT_LWIP) ||
-        (prot->type >= RT_WLAN_PROT_MAX) ||
-        (prot->ops->prot_recv == RT_NULL) ||
-        (prot->ops->dev_reg_callback == RT_NULL))
+    if ((prot == RT_NULL) ||
+            (prot->type < RT_WLAN_PROT_LWIP) ||
+            (prot->type >= RT_WLAN_PROT_MAX) ||
+            (prot->ops->prot_recv == RT_NULL) ||
+            (prot->ops->dev_reg_callback == RT_NULL))
     {
         LOG_E("F:%s L:%d Parameter Wrongful", __FUNCTION__, __LINE__);
         return -RT_EINVAL;
@@ -312,8 +312,8 @@ rt_err_t rt_wlan_prot_event_unregister(struct rt_wlan_prot *prot, rt_wlan_prot_e
 
     for (i = 0; i < RT_WLAN_PROT_MAX; i++)
     {
-        if ((prot_event_tab[event][i].handler != RT_NULL) && 
-            (prot_event_tab[event][i].prot == prot))
+        if ((prot_event_tab[event][i].handler != RT_NULL) &&
+                (prot_event_tab[event][i].prot == prot))
         {
             rt_memset(&prot_event_tab[event][i], 0, sizeof(struct rt_wlan_prot_event_des));
             return RT_EOK;
@@ -364,8 +364,12 @@ void rt_wlan_prot_dump(void)
             rt_kprintf("%-8.8s  ", _prot[i]->name);
             switch (_prot[i]->type)
             {
-            case RT_WLAN_PROT_LWIP: type = "LWIP"; break;
-            default: type = "UNKNOWN"; break;
+            case RT_WLAN_PROT_LWIP:
+                type = "LWIP";
+                break;
+            default:
+                type = "UNKNOWN";
+                break;
             }
             rt_kprintf("%-7.7s\n", type);
         }

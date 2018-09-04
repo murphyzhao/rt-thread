@@ -52,7 +52,7 @@ struct lwip_prot_des
     struct rt_timer timer;
 };
 
-static void netif_is_ready(struct rt_work* work, void *parameter)
+static void netif_is_ready(struct rt_work *work, void *parameter)
 {
     ip_addr_t ip_addr = { 0 };
     struct rt_wlan_device *wlan = parameter;
@@ -167,7 +167,7 @@ static void netif_set_connected(struct rt_wlan_device *wlan, int connected)
 
 static void rt_wlan_lwip_event_handle(struct rt_wlan_prot *port, struct rt_wlan_device *wlan, int event)
 {
-    switch(event)
+    switch (event)
     {
     case RT_WLAN_PROT_EVT_CONNECT:
     {
@@ -221,7 +221,7 @@ static rt_err_t rt_wlan_lwip_protocol_control(rt_device_t device, int cmd, void 
 
     LOG_D("F:%s L:%d device:0x%08x user_data:0x%08x", __FUNCTION__, __LINE__, eth_dev, eth_dev->parent.user_data);
 
-    switch(cmd)
+    switch (cmd)
     {
     case NIOCTL_GADDR:
         /* get MAC address */
@@ -292,7 +292,7 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
 #endif
 }
 
-static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf* p)
+static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf *p)
 {
     struct rt_wlan_device *wlan = ((struct eth_device *)device)->parent.user_data;
     rt_uint8_t *frame;
@@ -356,7 +356,8 @@ static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *
         eth_name[1] = '0' + id++;
         eth_name[2] = '\0';
         device = rt_device_find(eth_name);
-    } while (device);
+    }
+    while (device);
 
     if (id > 9)
     {
@@ -400,8 +401,8 @@ static struct rt_wlan_prot *rt_wlan_lwip_protocol_register(struct rt_wlan_prot *
     }
     rt_memcpy(&lwip_prot->prot, prot, sizeof(struct rt_wlan_prot));
     rt_sprintf(timer_name, "%s_timer", eth_name);
-    rt_timer_init(&lwip_prot->timer, timer_name, timer_callback, wlan, rt_tick_from_millisecond(1000), 
-                    RT_TIMER_FLAG_SOFT_TIMER | RT_TIMER_FLAG_PERIODIC);
+    rt_timer_init(&lwip_prot->timer, timer_name, timer_callback, wlan, rt_tick_from_millisecond(1000),
+                  RT_TIMER_FLAG_SOFT_TIMER | RT_TIMER_FLAG_PERIODIC);
     LOG_I("eth device init ok name:%s", eth_name);
 
     return &lwip_prot->prot;
@@ -413,7 +414,7 @@ static void rt_wlan_lwip_protocol_unregister(struct rt_wlan_prot *prot, struct r
     LOG_D("F:%s L:%d is run wlan:0x%08x", __FUNCTION__, __LINE__, wlan);
 }
 
-static struct rt_wlan_prot_ops ops = 
+static struct rt_wlan_prot_ops ops =
 {
     rt_wlan_lwip_protocol_recv,
     rt_wlan_lwip_protocol_register,

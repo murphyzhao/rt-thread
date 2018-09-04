@@ -40,13 +40,13 @@
 struct rt_wlan_work
 {
     struct rt_work work;
-    void (*fun)(void* parameter);
+    void (*fun)(void *parameter);
     void *parameter;
 };
 
 static struct rt_workqueue *wlan_workqueue;
 
-static void rt_wlan_workqueue_fun(struct rt_work* work, void* work_data)
+static void rt_wlan_workqueue_fun(struct rt_work *work, void *work_data)
 {
     struct rt_wlan_work *wlan_work = work_data;
 
@@ -103,7 +103,7 @@ int rt_wlan_workqueue_init(void)
     if (_init_flag == 0)
     {
         wlan_workqueue = rt_workqueue_create(RT_WLAN_WORKQUEUE_THREAD_NAME, RT_WLAN_WORKQUEUE_THREAD_SIZE,
-            RT_WLAN_WORKQUEUE_THREAD_PRIO);
+                                             RT_WLAN_WORKQUEUE_THREAD_PRIO);
         if (wlan_workqueue == RT_NULL)
         {
             LOG_E("F:%s L:%d wlan work queue create failed", __FUNCTION__, __LINE__);

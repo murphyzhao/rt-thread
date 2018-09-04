@@ -55,7 +55,7 @@ static int wifi_debug_set_prot(int argc, char *argv[]);
 static int wifi_debug_set_autoconnect(int argc, char *argv[]);
 
 /* cmd table */
-static const struct wifi_cmd_des cmd_tab[] = 
+static const struct wifi_cmd_des cmd_tab[] =
 {
     {"scan", wifi_scan},
     {"help", wifi_help},
@@ -69,7 +69,7 @@ static const struct wifi_cmd_des cmd_tab[] =
 };
 
 /* debug cmd table */
-static const struct wifi_cmd_des debug_tab[] = 
+static const struct wifi_cmd_des debug_tab[] =
 {
     {"save_cfg", wifi_debug_save_cfg},
     {"dump_cfg", wifi_debug_dump_cfg},
@@ -109,11 +109,11 @@ static int wifi_status(int argc, char *argv[])
         rt_kprintf("Wi-Fi STA Info\n");
         rt_kprintf("SSID : %-.32s\n", &info.ssid.val[0]);
         rt_kprintf("MAC Addr: %02x:%02x:%02x:%02x:%02x:%02x\n", info.bssid[0],
-                    info.bssid[1],
-                    info.bssid[2],
-                    info.bssid[3],
-                    info.bssid[4],
-                    info.bssid[5]);
+                   info.bssid[1],
+                   info.bssid[2],
+                   info.bssid[3],
+                   info.bssid[4],
+                   info.bssid[5]);
         rt_kprintf("Channel: %d\n", info.channel);
         rt_kprintf("DataRate: %dMbps\n", info.datarate / 1000000);
         rt_kprintf("RSSI: %d\n", rssi);
@@ -129,11 +129,11 @@ static int wifi_status(int argc, char *argv[])
         rt_kprintf("Wi-Fi AP Info\n");
         rt_kprintf("SSID : %-.32s\n", &info.ssid.val[0]);
         rt_kprintf("MAC Addr: %02x:%02x:%02x:%02x:%02x:%02x\n", info.bssid[0],
-                    info.bssid[1],
-                    info.bssid[2],
-                    info.bssid[3],
-                    info.bssid[4],
-                    info.bssid[5]);
+                   info.bssid[1],
+                   info.bssid[2],
+                   info.bssid[3],
+                   info.bssid[4],
+                   info.bssid[5]);
         rt_kprintf("Channel: %d\n", info.channel);
         rt_kprintf("DataRate: %dMbps\n", info.datarate / 1000000);
         rt_kprintf("hidden: %s\n", info.hidden ? "Enable" : "Disable");
@@ -167,26 +167,48 @@ static int wifi_scan(int argc, char *argv[])
         {
             rt_kprintf("%-32.32s", &scan_result->info[index].ssid.val[0]);
             rt_kprintf("%02x:%02x:%02x:%02x:%02x:%02x  ",
-                scan_result->info[index].bssid[0],
-                scan_result->info[index].bssid[1],
-                scan_result->info[index].bssid[2],
-                scan_result->info[index].bssid[3],
-                scan_result->info[index].bssid[4],
-                scan_result->info[index].bssid[5]
-            );
+                       scan_result->info[index].bssid[0],
+                       scan_result->info[index].bssid[1],
+                       scan_result->info[index].bssid[2],
+                       scan_result->info[index].bssid[3],
+                       scan_result->info[index].bssid[4],
+                       scan_result->info[index].bssid[5]
+                      );
             switch (scan_result->info[index].security)
             {
-            case SECURITY_OPEN: security = "OPEN"; break;
-            case SECURITY_WEP_PSK: security = "WEP_PSK"; break;
-            case SECURITY_WEP_SHARED: security = "WEP_SHARED"; break;
-            case SECURITY_WPA_TKIP_PSK: security = "WPA_TKIP_PSK"; break;
-            case SECURITY_WPA_AES_PSK: security = "WPA_AES_PSK"; break;
-            case SECURITY_WPA2_AES_PSK: security = "WPA2_AES_PSK"; break;
-            case SECURITY_WPA2_TKIP_PSK: security = "WPA2_TKIP_PSK"; break;
-            case SECURITY_WPA2_MIXED_PSK: security = "WPA2_MIXED_PSK"; break;
-            case SECURITY_WPS_OPEN: security = "WPS_OPEN"; break;
-            case SECURITY_WPS_SECURE: security = "WPS_SECURE"; break;
-            default:security = "UNKNOWN"; break;
+            case SECURITY_OPEN:
+                security = "OPEN";
+                break;
+            case SECURITY_WEP_PSK:
+                security = "WEP_PSK";
+                break;
+            case SECURITY_WEP_SHARED:
+                security = "WEP_SHARED";
+                break;
+            case SECURITY_WPA_TKIP_PSK:
+                security = "WPA_TKIP_PSK";
+                break;
+            case SECURITY_WPA_AES_PSK:
+                security = "WPA_AES_PSK";
+                break;
+            case SECURITY_WPA2_AES_PSK:
+                security = "WPA2_AES_PSK";
+                break;
+            case SECURITY_WPA2_TKIP_PSK:
+                security = "WPA2_TKIP_PSK";
+                break;
+            case SECURITY_WPA2_MIXED_PSK:
+                security = "WPA2_MIXED_PSK";
+                break;
+            case SECURITY_WPS_OPEN:
+                security = "WPS_OPEN";
+                break;
+            case SECURITY_WPS_SECURE:
+                security = "WPS_SECURE";
+                break;
+            default:
+                security = "UNKNOWN";
+                break;
             }
             rt_kprintf("%-14.14s ", security);
             rt_kprintf("%-4d ", scan_result->info[index].rssi);
@@ -315,7 +337,7 @@ static int wifi_debug_save_cfg(int argc, char *argv[])
         ssid = argv[1];
         password = argv[2];
     }
-    else 
+    else
     {
         return -1;
     }

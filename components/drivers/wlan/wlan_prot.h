@@ -41,7 +41,7 @@ typedef enum
 {
     RT_WLAN_PROT_LWIP = 0,
     RT_WLAN_PROT_MAX
-}rt_wlan_prot_type_t;
+} rt_wlan_prot_type_t;
 
 typedef enum
 {
@@ -59,7 +59,7 @@ struct rt_wlan_prot;
 struct rt_wlan_prot_ops
 {
     rt_err_t (*prot_recv)(struct rt_wlan_device *wlan, void *buff, int len);
-    struct rt_wlan_prot * (*dev_reg_callback)(struct rt_wlan_prot *prot, struct rt_wlan_device *wlan);
+    struct rt_wlan_prot *(*dev_reg_callback)(struct rt_wlan_prot *prot, struct rt_wlan_device *wlan);
     void (*dev_unreg_callback)(struct rt_wlan_prot *prot, struct rt_wlan_device *wlan);
 };
 

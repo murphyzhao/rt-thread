@@ -78,8 +78,8 @@ rt_err_t rt_wlan_dev_connect(struct rt_wlan_device *device, struct rt_wlan_info 
 
     if (device == RT_NULL) return -RT_EIO;
     if (info == RT_NULL) return -RT_ERROR;
-    if ((password_len > RT_WLAN_PASSWORD_MAX_LENGTH) || 
-        (info->ssid.len > RT_WLAN_SSID_MAX_LENGTH))
+    if ((password_len > RT_WLAN_PASSWORD_MAX_LENGTH) ||
+            (info->ssid.len > RT_WLAN_SSID_MAX_LENGTH))
     {
         LOG_E("L:%d password or ssid is to long", __LINE__);
         return -RT_ERROR;
@@ -115,8 +115,8 @@ rt_err_t rt_wlan_dev_ap_start(struct rt_wlan_device *device, struct rt_wlan_info
 
     if (device == RT_NULL) return -RT_EIO;
     if (info == RT_NULL) return -RT_ERROR;
-    if ((password_len >= RT_WLAN_PASSWORD_MAX_LENGTH) || 
-        (info->ssid.len >= RT_WLAN_SSID_MAX_LENGTH))
+    if ((password_len >= RT_WLAN_PASSWORD_MAX_LENGTH) ||
+            (info->ssid.len >= RT_WLAN_SSID_MAX_LENGTH))
     {
         LOG_E("L:%d password or ssid is to long", __LINE__);
         return -RT_ERROR;
@@ -304,7 +304,7 @@ int rt_wlan_dev_cfg_filter(struct rt_wlan_device *device, struct rt_wlan_filter 
 }
 
 int rt_wlan_dev_set_channel(struct rt_wlan_device *device, int channel)
-{    
+{
     int result = 0;
 
     if (device == RT_NULL) return -RT_EIO;
@@ -378,7 +378,7 @@ static rt_err_t _rt_wlan_dev_init(rt_device_t dev)
 
     rt_mutex_init(&wlan->lock, "wlan_dev", RT_IPC_FLAG_FIFO);
 
-    if (wlan->ops->wlan_init) 
+    if (wlan->ops->wlan_init)
         result = wlan->ops->wlan_init(wlan);
 
     if (result == RT_EOK)
@@ -402,7 +402,7 @@ static rt_err_t _rt_wlan_dev_control(rt_device_t dev, int cmd, void *args)
 
     WLAN_DEV_LOCK(wlan);
 
-    switch(cmd)
+    switch (cmd)
     {
     case RT_WLAN_CMD_MODE:
     {
@@ -444,7 +444,7 @@ static rt_err_t _rt_wlan_dev_control(rt_device_t dev, int cmd, void *args)
     {
         LOG_D("%s %d cmd[%d]:%s  run......", __FUNCTION__, __LINE__, RT_WLAN_CMD_DISCONNECT, "RT_WLAN_CMD_DISCONNECT");
         if (wlan->ops->wlan_disconnect)
-            err = wlan->ops->wlan_disconnect(wlan);   
+            err = wlan->ops->wlan_disconnect(wlan);
         break;
     }
     case RT_WLAN_CMD_AP_STOP:
