@@ -54,6 +54,11 @@ static void rt_wlan_workqueue_fun(struct rt_work* work, void* work_data)
     rt_free(wlan_work);
 }
 
+struct rt_workqueue *rt_wlan_get_workqueue(void)
+{
+    return wlan_workqueue;
+}
+
 rt_err_t rt_wlan_workqueue_dowork(void (*func)(void *parameter), void *parameter)
 {
     struct rt_wlan_work *wlan_work;

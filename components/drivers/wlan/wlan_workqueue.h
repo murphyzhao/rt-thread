@@ -29,6 +29,8 @@
 #ifndef __WLAN_WORKQUEUE_H__
 #define __WLAN_WORKQUEUE_H__
 
+#include <ipc/workqueue.h>
+
 #ifndef RT_WLAN_WORKQUEUE_THREAD_NAME
 #define RT_WLAN_WORKQUEUE_THREAD_NAME  ("wlan_job")
 #endif
@@ -44,5 +46,7 @@
 int rt_wlan_workqueue_init(void);
 
 rt_err_t rt_wlan_workqueue_dowork(void (*func)(void *parameter), void *parameter);
+
+struct rt_workqueue *rt_wlan_get_workqueue(void);
 
 #endif
