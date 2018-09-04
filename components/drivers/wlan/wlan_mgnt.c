@@ -385,24 +385,24 @@ static rt_err_t rt_wlan_sta_info_del_all(void)
     return err;
 }
 
-static void rt_wlan_auto_connect_run(void *parameter)
+static void rt_wlan_auto_connect_run(struct rt_work* work, void *parameter)
 {
     static rt_uint32_t id = 0;
     struct rt_wlan_cfg_info cfg_info = { 0 };
     char *password = RT_NULL;
+    rt_base_t level;
 
     RT_WLAN_LOG_D("F:%s is run", __FUNCTION__);
 
     if (rt_mutex_take(&mgnt_mutex, 0) != RT_EOK)
-        return;
+        goto exit;
 
     /* auto connect status is disable or wifi is connect or connecting, exit */
     if (_is_do_connect() == RT_FALSE)
     {
         id = 0;
         RT_WLAN_LOG_D("not connection");
-        MGNT_UNLOCK();
-        return;
+        goto exit;
     }
 
     /* Read the next configuration */
@@ -410,8 +410,7 @@ static void rt_wlan_auto_connect_run(void *parameter)
     {
         RT_WLAN_LOG_D("read cfg fail");
         id = 0;
-        MGNT_UNLOCK();
-        return;
+        goto exit;
     }
 
     if (id >= rt_wlan_cfg_get_num()) id = 0;
@@ -422,14 +421,34 @@ static void rt_wlan_auto_connect_run(void *parameter)
         password = (char *)(&cfg_info.key.val[0]);
     }
     rt_wlan_connect_adv(&cfg_info.info, password);
+exit:
     MGNT_UNLOCK();
+    level = rt_hw_interrupt_disable();
+    rt_memset(work, 0, sizeof(struct rt_work));
+    rt_hw_interrupt_enable(level);
 }
 
 static void rt_wlan_cyclic_check(void *parameter)
 {
-    if (_is_do_connect() == RT_TRUE)
+    struct rt_workqueue *workqueue;
+    static struct rt_work work;
+    rt_base_t level;
+
+    if ((_is_do_connect() == RT_TRUE) && (work.work_func == RT_NULL))
     {
-        rt_wlan_workqueue_dowork(rt_wlan_auto_connect_run, RT_NULL);
+        workqueue = rt_wlan_get_workqueue();
+        if (workqueue != RT_NULL)
+        {
+            level = rt_hw_interrupt_disable();
+            rt_work_init(&work, rt_wlan_auto_connect_run, RT_NULL);
+            rt_hw_interrupt_enable(level);
+            if (rt_workqueue_dowork(workqueue, &work) != RT_EOK)
+            {
+                level = rt_hw_interrupt_disable();
+                rt_memset(&work, 0, sizeof(struct rt_work));
+                rt_hw_interrupt_enable(level);
+            }
+        }
     }
 }
 
@@ -443,12 +462,17 @@ static void rt_wlan_mgnt_work(void *parameter)
     {
         struct rt_wlan_cfg_info cfg_info;
 
-        RT_WLAN_LOG_I("wifi connect success ssid:%s", &_sta_mgnt.info.ssid.val[0]);
         /* save config */
-        cfg_info.info = _sta_mgnt.info;
-        cfg_info.key = _sta_mgnt.key;
-        RT_WLAN_LOG_D("run save config! ssid:%s len%d", _sta_mgnt.info.ssid.val, _sta_mgnt.info.ssid.len);
-        rt_wlan_cfg_save(&cfg_info);
+        if (rt_wlan_is_connected() == RT_TRUE)
+        {
+            RT_WLAN_LOG_I("wifi connect success ssid:%s", &_sta_mgnt.info.ssid.val[0]);
+            rt_enter_critical();
+            cfg_info.info = _sta_mgnt.info;
+            cfg_info.key = _sta_mgnt.key;
+            rt_exit_critical();
+            RT_WLAN_LOG_D("run save config! ssid:%s len%d", _sta_mgnt.info.ssid.val, _sta_mgnt.info.ssid.len);
+            rt_wlan_cfg_save(&cfg_info);
+        }
         break;
     }
     case RT_WLAN_DEV_EVT_CONNECT_FAIL:
@@ -988,18 +1012,21 @@ rt_err_t rt_wlan_connect_adv(struct rt_wlan_info *info, const char *password)
     }
 
     /* save info */
+    rt_enter_critical();
     _sta_mgnt.info = *info;
     rt_memcpy(&_sta_mgnt.key.val, password, password_len);
     _sta_mgnt.key.len = password_len;
     _sta_mgnt.key.val[password_len] = '\0';
-
+    rt_exit_critical();
     /* run wifi connect */
     _sta_mgnt.state |= RT_WLAN_STATE_CONNECTING;
     err = rt_wlan_dev_connect(_sta_mgnt.device, info, password, password_len);
     if (err != RT_EOK)
     {
+        rt_enter_critical();
         rt_memset(&_sta_mgnt.info, 0, sizeof(struct rt_wlan_ssid));
         rt_memset(&_sta_mgnt.key, 0, sizeof(struct rt_wlan_key));
+        rt_exit_critical();
         _sta_mgnt.state &= ~RT_WLAN_STATE_CONNECTING;
         MGNT_UNLOCK();
         return err;
@@ -1083,7 +1110,9 @@ rt_err_t rt_wlan_get_info(struct rt_wlan_info *info)
     if (_sta_is_null()) return -RT_EIO;
     RT_WLAN_LOG_D("%s is run", __FUNCTION__);
 
+    rt_enter_critical();
     *info = _sta_mgnt.info;
+    rt_exit_critical();
     return RT_EOK;
 }
 
