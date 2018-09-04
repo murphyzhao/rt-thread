@@ -250,7 +250,6 @@ rt_err_t rt_wlan_prot_regisetr(struct rt_wlan_prot *prot)
 
     /* Parameter checking */
     if ((prot == RT_NULL) ||
-            (prot->type < RT_WLAN_PROT_LWIP) ||
             (prot->type >= RT_WLAN_PROT_MAX) ||
             (prot->ops->prot_recv == RT_NULL) ||
             (prot->ops->dev_reg_callback == RT_NULL))

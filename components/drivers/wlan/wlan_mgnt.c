@@ -388,7 +388,7 @@ static rt_err_t rt_wlan_sta_info_del_all(void)
 static void rt_wlan_auto_connect_run(struct rt_work *work, void *parameter)
 {
     static rt_uint32_t id = 0;
-    struct rt_wlan_cfg_info cfg_info = { 0 };
+    struct rt_wlan_cfg_info cfg_info;
     char *password = RT_NULL;
     rt_base_t level;
 
@@ -406,6 +406,7 @@ static void rt_wlan_auto_connect_run(struct rt_work *work, void *parameter)
     }
 
     /* Read the next configuration */
+    rt_memset(&cfg_info, 0, sizeof(struct rt_wlan_cfg_info));
     if (rt_wlan_cfg_read_index(&cfg_info, id ++) == 0)
     {
         RT_WLAN_LOG_D("read cfg fail");
@@ -1133,13 +1134,14 @@ rt_err_t rt_wlan_start_ap(const char *ssid, const char *password)
 {
     rt_err_t err = RT_EOK;
     int ssid_len = 0, i = 0;
-    struct rt_wlan_info info = { 0 };
+    struct rt_wlan_info info;
     struct rt_wlan_complete_des *complete;
     rt_uint32_t set = 0, recved = 0;
 
     if (_ap_is_null()) return -RT_EIO;
     if (ssid == RT_NULL) return -RT_EINVAL;
 
+    rt_memset(&info, 0, sizeof(struct rt_wlan_info));
     RT_WLAN_LOG_D("%s is run ssid:%s password:%s", __FUNCTION__, ssid, password);
     if (password)
     {
@@ -1406,7 +1408,7 @@ rt_country_code_t rt_wlan_ap_get_country(void)
 {
     rt_country_code_t country_code = RT_COUNTRY_UNKNOWN;
 
-    if (_ap_is_null()) return -RT_EIO;
+    if (_ap_is_null()) return country_code;
     MGNT_LOCK();
     country_code = rt_wlan_dev_get_country(AP_DEVICE());
     RT_WLAN_LOG_D("%s is run country:%d", __FUNCTION__, country_code);

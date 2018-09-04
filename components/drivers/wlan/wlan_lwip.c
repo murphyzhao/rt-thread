@@ -238,7 +238,6 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
 {
     struct eth_device *eth_dev = &((struct lwip_prot_des *)wlan->prot)->eth;
     struct pbuf *p = RT_NULL;
-    int count = 0;
 
     LOG_D("F:%s L:%d run", __FUNCTION__, __LINE__);
 
@@ -257,6 +256,8 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
     }
 #else
     {
+        int count = 0;
+
         while (p == RT_NULL)
         {
             p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
@@ -295,7 +296,6 @@ static rt_err_t rt_wlan_lwip_protocol_recv(struct rt_wlan_device *wlan, void *bu
 static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf *p)
 {
     struct rt_wlan_device *wlan = ((struct eth_device *)device)->parent.user_data;
-    rt_uint8_t *frame;
 
     LOG_D("F:%s L:%d run", __FUNCTION__, __LINE__);
 
@@ -311,6 +311,8 @@ static rt_err_t rt_wlan_lwip_protocol_send(rt_device_t device, struct pbuf *p)
     }
 #else
     {
+        rt_uint8_t *frame;
+
         /* sending data directly */
         if (p->len == p->tot_len)
         {

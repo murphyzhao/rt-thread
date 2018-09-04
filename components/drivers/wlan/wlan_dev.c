@@ -327,7 +327,7 @@ rt_country_code_t rt_wlan_dev_get_country(struct rt_wlan_device *device)
     int result = 0;
     rt_country_code_t country_code = RT_COUNTRY_UNKNOWN;
 
-    if (device == RT_NULL) return -RT_EIO;
+    if (device == RT_NULL) return country_code;
     result = rt_device_control(RT_DEVICE(device), RT_WLAN_CMD_GET_COUNTRY, &country_code);
     if (result != RT_EOK) return RT_COUNTRY_UNKNOWN;
     return country_code;
