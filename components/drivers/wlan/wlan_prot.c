@@ -323,24 +323,24 @@ rt_err_t rt_wlan_prot_event_unregister(struct rt_wlan_prot *prot, rt_wlan_prot_e
     return -RT_ERROR;
 }
 
-int rt_wlan_prot_transfer_dev(struct rt_wlan_device *wlan, void *buff, int len)
+rt_err_t rt_wlan_prot_transfer_dev(struct rt_wlan_device *wlan, void *buff, int len)
 {
     if (wlan->ops->wlan_send != RT_NULL)
     {
-        wlan->ops->wlan_send(wlan, buff, len);
+        return wlan->ops->wlan_send(wlan, buff, len);
     }
-    return len;
+    return -RT_ERROR;
 }
 
-int rt_wlan_dev_transfer_prot(struct rt_wlan_device *wlan, void *buff, int len)
+rt_err_t rt_wlan_dev_transfer_prot(struct rt_wlan_device *wlan, void *buff, int len)
 {
     struct rt_wlan_prot *prot = wlan->prot;
 
     if (prot != RT_NULL)
     {
-        prot->ops->prot_recv(wlan, buff, len);
+        return prot->ops->prot_recv(wlan, buff, len);
     }
-    return len;
+    return -RT_ERROR;
 }
 
 extern int rt_wlan_prot_ready_event(struct rt_wlan_device *wlan);

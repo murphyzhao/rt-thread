@@ -82,9 +82,9 @@ rt_err_t rt_wlan_prot_detach_dev(struct rt_wlan_device *wlan);
 
 rt_err_t rt_wlan_prot_regisetr(struct rt_wlan_prot *prot);
 
-int rt_wlan_prot_transfer_dev(struct rt_wlan_device *wlan, void *buff, int len);
+rt_err_t rt_wlan_prot_transfer_dev(struct rt_wlan_device *wlan, void *buff, int len);
 
-int rt_wlan_dev_transfer_prot(struct rt_wlan_device *wlan, void *buff, int len);
+rt_err_t rt_wlan_dev_transfer_prot(struct rt_wlan_device *wlan, void *buff, int len);
 
 rt_err_t rt_wlan_prot_event_register(struct rt_wlan_prot *prot, rt_wlan_prot_event_t event, rt_wlan_prot_event_handler handler);
 
