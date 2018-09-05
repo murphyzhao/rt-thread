@@ -210,14 +210,10 @@ static rt_err_t rt_wlan_scan_result_cache(struct rt_wlan_info *info, int timeout
             return RT_EOK;
         }
 #ifdef RT_WLAN_SCAN_SORT
-        if (((scan_result.info[i].rssi < 0) && (info->rssi < 0) &&
-                (scan_result.info[i].rssi < info->rssi)) ||
-                (scan_result.info[i].datarate > info->datarate))
+        if (insert >= 0)
         {
-            insert = i;
             continue;
         }
-
         /* Signal intensity comparison */
         if ((info->rssi < 0) && (scan_result.info[i].rssi < 0))
         {
