@@ -25,7 +25,7 @@ static void test_assert_second(void)
 
 static void test_main(void)
 {
-    utest_suite_init("utest.utest_test", RT_NULL, RT_NULL);
+    utest_suite_init("utest.utest_test2", RT_NULL, RT_NULL);
 
     utest_register_to_suite(
         utest_unit_add(test_assert_first),

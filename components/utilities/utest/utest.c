@@ -52,11 +52,14 @@ int utest_init(void)
 }
 INIT_COMPONENT_EXPORT(utest_init);
 
-void utest_run(const char *suite_name)
+static void utest_run(const char *suite_name)
 {
     rt_base_t level;
     struct utest_suite *suite;
     rt_slist_t *curr_list = &utest_suite_list;
+
+
+
     if (rt_slist_isempty(curr_list))
     {
         LOG_I("========== no testsuite exist");
@@ -70,14 +73,13 @@ void utest_run(const char *suite_name)
         suite = rt_slist_entry(curr_list->next, struct utest_suite, list);
         curr_list = curr_list->next;
         rt_hw_interrupt_enable(level);
-        
-        LOG_I("========== utest suite name: (%s)", suite->name);
 
         /* Allow suites with the same name, but will execute together */
         if (suite_name && rt_strcmp(suite_name, suite->name))
         {
             continue;
         }
+        LOG_I("========== utest suite name: (%s)", suite->name);
 
         if (suite->unit != RT_NULL)
         {
@@ -118,7 +120,26 @@ void utest_run(const char *suite_name)
     }
     LOG_I("========== utest run finished");
 }
-MSH_CMD_EXPORT(utest_run, utest_run);
+
+static void cmd_utest_run(int argc, char** argv)
+{
+    char name[128];
+    if (argc == 1)
+    {
+        utest_run(RT_NULL);
+    }
+    else if (argc == 2)
+    {
+        rt_memset(name, 0x0, sizeof(name));
+        rt_memcpy(name, argv[1], strlen(argv[1]));
+        utest_run(name);
+    }
+    else
+    {
+        LOG_E("$$$$$$$$$$ [run] error at (%s:%d)", __func__, __LINE__);
+    }
+}
+MSH_CMD_EXPORT_ALIAS(cmd_utest_run, utest_run, utest_run [suite_name]);
 
 void utest_fail(void)
 {

@@ -69,6 +69,6 @@ void _utest_suite_run(struct utest_suite *suite);
 #define utest_suite_run() \
     _utest_suite_run((struct utest_suite *)&_test_suite)
 
-void utest_run(const char *suite_name);
+// void utest_run(const char *suite_name);
 
 #endif
