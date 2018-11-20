@@ -32,26 +32,24 @@ struct utest_suite {
 };
 typedef struct utest_suite *utest_suite_t;
 
+#define ENABLE_UTEST_ASSERT_VERBOSE (2)
 // rt_err_t utest_unit_add();
 
 #define utest_suite_init(name, init, cleanup) \
-	    static struct utest_suite _test_suite = { \
-		{RT_NULL}, name, init, cleanup, RT_NULL \
-	}
+        static struct utest_suite _test_suite = { \
+        {RT_NULL}, name, init, cleanup, RT_NULL \
+    }
 
 #define utest_register_to_suite(...) \
-	    static struct utest_unit _test_unit[] = { \
-		__VA_ARGS__, { 0 } \
-	}; \
+        static struct utest_unit _test_unit[] = { \
+        __VA_ARGS__, { 0 } \
+    }; \
     _test_suite.unit = _test_unit; \
     _test_suite.unit_size = sizeof(_test_unit)/sizeof(struct utest_unit); \
     rt_kprintf("unit size: %d\n", _test_suite.unit_size);
 
-// #define utest_unit_mount() \
-// 	    _test_suite.unit = _test_unit;
-
 #define utest_unit_setup_teardown(fn, setup, teardown) { \
-	#fn, fn, setup, teardown, 0 \
+    #fn, fn, setup, teardown, 0 \
 }
 
 #define UTEST_INIT_APP_EXPORT(name, fn) \
@@ -63,7 +61,7 @@ typedef struct utest_suite *utest_suite_t;
     INIT_APP_EXPORT(utest_autoinit_##name);
 
 #define utest_unit_add(fn) \
-	utest_unit_setup_teardown(fn, RT_NULL, RT_NULL)
+    utest_unit_setup_teardown(fn, RT_NULL, RT_NULL)
 
 int utest_init(void);
 void _utest_suite_run(struct utest_suite *suite);

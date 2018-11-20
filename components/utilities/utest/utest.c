@@ -31,6 +31,10 @@
 #define DBG_COLOR
 #include <rtdbg.h>
 
+#if RT_CONSOLEBUF_SIZE < 256
+#error "RT_CONSOLEBUF_SIZE is less than 256!"
+#endif
+
 static rt_slist_t utest_suite_list;
 
 void _utest_suite_run(struct utest_suite *suite)
@@ -55,11 +59,11 @@ void utest_run(void)
     rt_slist_t *curr_list = &utest_suite_list;
     if (rt_slist_isempty(curr_list))
     {
-        LOG_I("========== no testsuite exist ==========");
+        LOG_I("========== no testsuite exist");
         return;
     }
 
-    LOG_I("========== utest run started ==========");
+    LOG_I("========== utest run started");
     while(curr_list->next != RT_NULL)
     {
         level = rt_hw_interrupt_disable();
@@ -67,7 +71,7 @@ void utest_run(void)
         curr_list = curr_list->next;
         rt_hw_interrupt_enable(level);
         
-        LOG_D("---------- utest suite name: (%s) ----------", suite->name);
+        LOG_I("========== utest suite name: (%s)", suite->name);
         if (suite->unit != RT_NULL)
         {
             rt_uint32_t i = 0;
@@ -76,21 +80,56 @@ void utest_run(void)
             {
                 if (suite->unit[i].name == RT_NULL)
                 {
-                    LOG_D("---------- utest unit end ----------");
+                    LOG_D("---------- utest unit end");
                     break;
                 }
-                LOG_D("---------- utest unit name: (%s) ----------",
+                LOG_I("========== utest unit name: (%s)",
                     suite->unit[i].name);
+
+                if (suite->unit[i].setup)
+                {
+                    suite->unit[i].setup();
+                }
+
+                if (suite->unit[i].test)
+                {
+                    suite->unit[i].test();
+                }
+
+                if (suite->unit[i].teardown)
+                {
+                    suite->unit[i].teardown();
+                }
+
                 i++;
             }
         }
         else
         {
-            LOG_D("---------- suite->unit is NULL ----------");
+            LOG_I("========== suite (%s) no unit exist", suite->name);
         }
     }
-    LOG_I("========== utest run finished ==========");
+    LOG_I("========== utest run finished");
 
 }
-
 MSH_CMD_EXPORT(utest_run, utest_run);
+
+void utest_fail(void)
+{
+    return;
+}
+
+void _utest_assert(int cond, const char *file, int line, const char *msg)
+{
+    if (!(cond))
+    {
+        LOG_E("$$$$$$$$$$[assert] at %s:%d; [msg] %s", file, line, msg);
+        utest_fail();
+    }
+#if ENABLE_UTEST_ASSERT_VERBOSE == 2
+    else
+    {
+        LOG_D("---------- ASSERT SUCC line:%d", line);
+    }
+#endif
+}
