@@ -393,6 +393,11 @@ def PrepareBuilding(env, root_directory, has_libcpu=False, remove_components = [
                            duplicate=0,
                            exports='remove_components'))
 
+    # include test
+    objs.extend(SConscript(Rtt_Root + '/test/SConscript',
+                           variant_dir=kernel_vdir + '/test',
+                           duplicate=0))
+
     return objs
 
 def PrepareModuleBuilding(env, root_directory, bsp_directory):
