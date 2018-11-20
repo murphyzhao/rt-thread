@@ -52,7 +52,7 @@ int utest_init(void)
 }
 INIT_COMPONENT_EXPORT(utest_init);
 
-void utest_run(void)
+void utest_run(const char *suite_name)
 {
     rt_base_t level;
     struct utest_suite *suite;
@@ -72,6 +72,13 @@ void utest_run(void)
         rt_hw_interrupt_enable(level);
         
         LOG_I("========== utest suite name: (%s)", suite->name);
+
+        /* Allow suites with the same name, but will execute together */
+        if (suite_name && rt_strcmp(suite_name, suite->name))
+        {
+            continue;
+        }
+
         if (suite->unit != RT_NULL)
         {
             rt_uint32_t i = 0;
@@ -110,7 +117,6 @@ void utest_run(void)
         }
     }
     LOG_I("========== utest run finished");
-
 }
 MSH_CMD_EXPORT(utest_run, utest_run);
 
