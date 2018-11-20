@@ -58,15 +58,13 @@ static void utest_run(const char *suite_name)
     struct utest_suite *suite;
     rt_slist_t *curr_list = &utest_suite_list;
 
-
-
     if (rt_slist_isempty(curr_list))
     {
-        LOG_I("========== no testsuite exist");
+        LOG_I("[==========] no testsuite exist");
         return;
     }
 
-    LOG_I("========== utest run started");
+    LOG_I("[==========] utest run started");
     while(curr_list->next != RT_NULL)
     {
         level = rt_hw_interrupt_disable();
@@ -79,20 +77,21 @@ static void utest_run(const char *suite_name)
         {
             continue;
         }
-        LOG_I("========== utest suite name: (%s)", suite->name);
+        LOG_I("[==========] utest suite name: (%s)", suite->name);
 
         if (suite->unit != RT_NULL)
         {
             rt_uint32_t i = 0;
 
+            LOG_D("[----------] utest unit start");
             while(i < suite->unit_size)
             {
                 if (suite->unit[i].name == RT_NULL)
                 {
-                    LOG_D("---------- utest unit end");
+                    LOG_D("[----------] utest unit end");
                     break;
                 }
-                LOG_I("========== utest unit name: (%s)",
+                LOG_I("[==========] utest unit name: (%s)",
                     suite->unit[i].name);
 
                 if (suite->unit[i].setup)
@@ -115,10 +114,10 @@ static void utest_run(const char *suite_name)
         }
         else
         {
-            LOG_I("========== suite (%s) no unit exist", suite->name);
+            LOG_I("[==========] suite (%s) no unit exist", suite->name);
         }
     }
-    LOG_I("========== utest run finished");
+    LOG_I("[==========] utest run finished");
 }
 
 static void cmd_utest_run(int argc, char** argv)
@@ -136,7 +135,7 @@ static void cmd_utest_run(int argc, char** argv)
     }
     else
     {
-        LOG_E("$$$$$$$$$$ [run] error at (%s:%d)", __func__, __LINE__);
+        LOG_E("[$$$$$$$$$$] [run] error at (%s:%d)", __func__, __LINE__);
     }
 }
 MSH_CMD_EXPORT_ALIAS(cmd_utest_run, utest_run, utest_run [suite_name]);
@@ -150,13 +149,13 @@ void _utest_assert(int cond, const char *file, int line, const char *msg)
 {
     if (!(cond))
     {
-        LOG_E("$$$$$$$$$$[assert] at %s:%d; [msg] %s", file, line, msg);
+        LOG_E("[  FAILED  ] [assert] at %s:%d; [msg] %s", file, line, msg);
         utest_fail();
     }
 #if ENABLE_UTEST_ASSERT_VERBOSE == 2
     else
     {
-        LOG_D("---------- ASSERT SUCC line:%d", line);
+        LOG_D("[  PASSED  ] ASSERT SUCC line:%d", line);
     }
 #endif
 }
