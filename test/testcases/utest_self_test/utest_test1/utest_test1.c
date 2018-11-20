@@ -7,20 +7,20 @@ static void test_assert_first(void)
 {
     utest_assert_true(1, "1 was false");
     utest_assert_false(0, "0 was true");
-    // utest_assert_is_null(NULL, "NULL was not NULL");
-    // utest_assert_not_null("foo", "\"foo\" was NULL");
-    // utest_assert_equal(1, 1, "1 was not equal to 1");
-    // utest_assert_equal_ptr(NULL, NULL, "NULL was not equal to NULL");
+    utest_assert_is_null(NULL, "NULL was not NULL");
+    utest_assert_not_null("foo", "\"foo\" was NULL");
+    utest_assert_equal(1, 1, "1 was not equal to 1");
+    utest_assert_equal_ptr(NULL, NULL, "NULL was not equal to NULL");
 }
 
 static void test_assert_second(void)
 {
     utest_assert_true(1, "1 was false");
     utest_assert_false(0, "0 was true");
-    // utest_assert_is_null(NULL, "NULL was not NULL");
-    // utest_assert_not_null("foo", "\"foo\" was NULL");
-    // utest_assert_equal(1, 1, "1 was not equal to 1");
-    // utest_assert_equal_ptr(NULL, NULL, "NULL was not equal to NULL");
+    utest_assert_is_null(NULL, "NULL was not NULL");
+    utest_assert_not_null("foo", "\"foo\" was NULL");
+    utest_assert_equal(1, 1, "1 was not equal to 1");
+    utest_assert_equal_ptr(NULL, NULL, "NULL was not equal to NULL");
 }
 
 static void test_main(void)
