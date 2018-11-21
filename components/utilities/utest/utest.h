@@ -43,7 +43,7 @@ typedef struct utest_cmd *utest_cmd_t;
 #define ENABLE_UTEST_ASSERT_VERBOSE (2)
 
 #define utest_suite_init(suite_name, init, cleanup)                            \
-    static struct utest_suite _test_suite = {                                  \
+    struct utest_suite _test_suite = {                                  \
         suite_name, init, cleanup, RT_NULL                                     \
     };
 

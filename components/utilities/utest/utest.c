@@ -10,8 +10,6 @@
 
 #include "utest.h"
 #include <rtthread.h>
-#include <rtdevice.h>
-#include <rthw.h>
 #include <finsh.h>
 
 #define UTEST_DEBUG
