@@ -27,13 +27,12 @@ struct utest_suite {
     const char *name;
     int (*init)(void);
     int (*cleanup)(void);
-    struct utest_unit *unit;
+    const struct utest_unit *unit;
     rt_uint32_t unit_size;
 };
 typedef struct utest_suite *utest_suite_t;
 
 #define ENABLE_UTEST_ASSERT_VERBOSE (2)
-// rt_err_t utest_unit_add();
 
 #define utest_suite_init(name, init, cleanup) \
         static struct utest_suite _test_suite = { \
@@ -41,7 +40,7 @@ typedef struct utest_suite *utest_suite_t;
     }
 
 #define utest_register_to_suite(...) \
-        static struct utest_unit _test_unit[] = { \
+        static const struct utest_unit _test_unit[] = { \
         __VA_ARGS__, { 0 } \
     }; \
     _test_suite.unit = _test_unit; \
