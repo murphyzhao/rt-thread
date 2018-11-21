@@ -35,103 +35,122 @@
 #error "RT_CONSOLEBUF_SIZE is less than 256!"
 #endif
 
-static rt_slist_t utest_suite_list;
-
 void _utest_suite_run(struct utest_suite *suite)
 {
-    rt_base_t level;
-    level = rt_hw_interrupt_disable();
-    rt_slist_append(&utest_suite_list, &suite->list);
-    rt_hw_interrupt_enable(level);
+    LOG_I("[==========] utest suite name: (%s)", suite->name);
+    if (suite->unit != RT_NULL)
+    {
+        rt_uint32_t i = 0;
+
+        LOG_D("[----------] utest unit start");
+        while(i < suite->unit_size)
+        {
+            if (suite->unit[i].name == RT_NULL)
+            {
+                LOG_D("[----------] utest unit end");
+                break;
+            }
+            LOG_I("[==========] utest unit name: (%s)",
+                suite->unit[i].name);
+
+            if (suite->unit[i].setup)
+            {
+                suite->unit[i].setup();
+            }
+
+            if (suite->unit[i].test)
+            {
+                suite->unit[i].test();
+            }
+
+            if (suite->unit[i].teardown)
+            {
+                suite->unit[i].teardown();
+            }
+
+            i++;
+        }
+    }
+    else
+    {
+        LOG_I("[==========] suite (%s) no unit exist", suite->name);
+    }
 }
+
+static utest_cmd_t cmd_table = RT_NULL;
+static rt_size_t cmd_num;
+
+#if defined(__ICCARM__) || defined(__ICCRX__)         /* for IAR compiler */
+#pragma section="UtestCmdTab"
+#endif
 
 int utest_init(void)
 {
-    rt_slist_init(&utest_suite_list);
-    return 0;
+    /* initialize the utest commands table.*/
+#if defined(__CC_ARM)                                 /* ARM C Compiler */
+    extern const int UtestCmdTab$$Base;
+    extern const int UtestCmdTab$$Limit;
+    cmd_table = (utest_cmd_t)&UtestCmdTab$$Base;
+    cmd_num = (utest_cmd_t)&UtestCmdTab$$Limit - cmd_table;
+#elif defined (__ICCARM__) || defined(__ICCRX__)      /* for IAR Compiler */
+    cmd_table = (utest_cmd_t)__section_begin("UtestCmdTab");
+    cmd_num = (utest_cmd_t)__section_end("UtestCmdTab") - cmd_table;
+#elif defined (__GNUC__)                              /* for GCC Compiler */
+    extern const int __rtatcmdtab_start;
+    extern const int __rtatcmdtab_end;
+    cmd_table = (utest_cmd_t)&__rtatcmdtab_start;
+    cmd_num = (utest_cmd_t) &__rtatcmdtab_end - cmd_table;
+#endif /* defined(__CC_ARM) */
+
+    LOG_D("[----------] total utest suite cmd: (%d)", cmd_num);
+    return cmd_num;
 }
 INIT_COMPONENT_EXPORT(utest_init);
 
+static void utest_cmd_list(void)
+{
+    rt_size_t i = 0;
+
+    LOG_D("Commands list : ");
+
+    for (i = 0; i < cmd_num; i++)
+    {
+        LOG_D("%s", cmd_table[i].name);
+    }
+}
+MSH_CMD_EXPORT_ALIAS(utest_cmd_list, utest_cmd_list, output all utest cmd);
+
 static void utest_run(const char *suite_name)
 {
-    rt_base_t level;
-    struct utest_suite *suite;
-    rt_slist_t *curr_list = &utest_suite_list;
+    rt_size_t i = 0;
 
-    if (rt_slist_isempty(curr_list))
+    LOG_D("[----------] total utest suite num: (%d)", cmd_num);
+
+    while(i < cmd_num)
     {
-        LOG_I("[==========] no testsuite exist");
-        return;
-    }
-
-    LOG_I("[==========] utest run started");
-    while(curr_list->next != RT_NULL)
-    {
-        level = rt_hw_interrupt_disable();
-        suite = rt_slist_entry(curr_list->next, struct utest_suite, list);
-        curr_list = curr_list->next;
-        rt_hw_interrupt_enable(level);
-
-        /* Allow suites with the same name, but will execute together */
-        if (suite_name && rt_strcmp(suite_name, suite->name))
+        if (suite_name && rt_strcmp(suite_name, cmd_table[i].name))
         {
+            i++;
             continue;
         }
-        LOG_I("[==========] utest suite name: (%s)", suite->name);
-
-        if (suite->unit != RT_NULL)
-        {
-            rt_uint32_t i = 0;
-
-            LOG_D("[----------] utest unit start");
-            while(i < suite->unit_size)
-            {
-                if (suite->unit[i].name == RT_NULL)
-                {
-                    LOG_D("[----------] utest unit end");
-                    break;
-                }
-                LOG_I("[==========] utest unit name: (%s)",
-                    suite->unit[i].name);
-
-                if (suite->unit[i].setup)
-                {
-                    suite->unit[i].setup();
-                }
-
-                if (suite->unit[i].test)
-                {
-                    suite->unit[i].test();
-                }
-
-                if (suite->unit[i].teardown)
-                {
-                    suite->unit[i].teardown();
-                }
-
-                i++;
-            }
-        }
-        else
-        {
-            LOG_I("[==========] suite (%s) no unit exist", suite->name);
-        }
+        cmd_table[i].cmd_func();
+        i++;
     }
-    LOG_I("[==========] utest run finished");
 }
 
 static void cmd_utest_run(int argc, char** argv)
 {
-    char name[128];
+    char suite_name[128];
+
     if (argc == 1)
     {
         utest_run(RT_NULL);
     }
     else if (argc == 2)
     {
-        rt_memset(name, 0x0, sizeof(name));
-        rt_memcpy(name, argv[1], strlen(argv[1]));
-        utest_run(name);
+        rt_memset(suite_name, 0x0, sizeof(suite_name));
+        rt_memcpy(suite_name, argv[1], strlen(argv[1]));
+        utest_run(suite_name);
     }
     else
     {

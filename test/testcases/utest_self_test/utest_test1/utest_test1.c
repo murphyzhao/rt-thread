@@ -34,6 +34,4 @@ static void test_main(void)
 
     utest_suite_run();
 }
-
-MSH_CMD_EXPORT_ALIAS(test_main, test_main_1, test_main);
-UTEST_INIT_APP_EXPORT(utest_testmain1, test_main);
+UTEST_SUITE_EXPORT(test_main, "utest.utest_test1", test_main);
