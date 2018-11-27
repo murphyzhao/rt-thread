@@ -33,8 +33,20 @@
 #error "RT_CONSOLEBUF_SIZE is less than 256!"
 #endif
 
+/**
+ * 0: UTEST_ERR_PASS; 1: UTEST_ERR_SKIP; 2: UTEST_ERR_FAIL; 3: UTEST_ERR_FATAL
+*/
+struct utest
+{
+    rt_int32_t err_level;
+};
+typedef struct utest *utest_t;
+
+static struct utest local_utest = {0};
+
 void _utest_suite_run(struct utest_suite *suite)
 {
+    local_utest.err_level = UTEST_ERR_LEVEL_LOW;
     LOG_I("[==========] utest suite name: (%s)", suite->name);
     if (suite->unit != RT_NULL)
     {
@@ -43,13 +55,23 @@ void _utest_suite_run(struct utest_suite *suite)
         LOG_D("[----------] utest unit start");
         while(i < suite->unit_size)
         {
+            // local_utest.err_level = UTEST_ERR_LEVEL_LOW;
             if (suite->unit[i].name == RT_NULL)
             {
                 LOG_D("[----------] utest unit end");
-                break;
+                i++;
+                continue;
             }
             LOG_I("[==========] utest unit name: (%s)",
                 suite->unit[i].name);
+
+            if (local_utest.err_level == UTEST_ERR_LEVEL_FATAL)
+            {
+                LOG_I("[   SKIP   ] utest unit name: (%s) skipped",
+                    suite->unit[i].name);
+                i++;
+                continue;
+            }
 
             if (suite->unit[i].setup)
             {
@@ -124,6 +146,7 @@ static void utest_run(const char *suite_name)
 
     LOG_D("[----------] total utest suite num: (%d)", cmd_num);
 
+    LOG_I("[==========] utest run started");
     while(i < cmd_num)
     {
         if (suite_name && rt_strcmp(suite_name, cmd_table[i].name))
@@ -134,6 +157,7 @@ static void utest_run(const char *suite_name)
         cmd_table[i].cmd_func();
         i++;
     }
+    LOG_I("[==========] utest run finished");
 }
 
 static void cmd_utest_run(int argc, char** argv)
@@ -162,8 +186,9 @@ void utest_fail(void)
     return;
 }
 
-void _utest_assert(int cond, const char *file, int line, const char *msg)
+void _utest_assert(int cond, int32_t err_level, const char *file, int line, const char *msg)
 {
+    local_utest.err_level = err_level;
     if (!(cond))
     {
         LOG_E("[  FAILED  ] [assert] at %s:%d; [msg] %s", file, line, msg);

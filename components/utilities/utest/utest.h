@@ -40,6 +40,23 @@ struct utest_cmd {
 };
 typedef struct utest_cmd *utest_cmd_t;
 
+#define TEST_ERR_PASS (0u)
+#define TEST_ERR_SKIP (1u)
+#define TEST_ERR_FAIL (2u)
+
+/**
+ * UTEST_ERR_LEVEL_LOW
+ * Ordinary error: The test suite will continue to run others test units under the current test suite
+*/
+#define UTEST_ERR_LEVEL_LOW   (0u)
+/**
+ * UTEST_ERR_LEVEL_FATAL
+ * Fatal error: The test suite will end up running,
+ * skipping all unexecuted test units under the current test suite
+*/
+#define UTEST_ERR_LEVEL_FATAL (1u)
+
+
 #define ENABLE_UTEST_ASSERT_VERBOSE (2)
 
 #define utest_suite_init(suite_name, init, cleanup)                            \
