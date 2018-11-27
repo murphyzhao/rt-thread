@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2006-2018, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date           Author       Notes
+ * 2018-11-19     MurphyZhao   the first version
+ */
+
+#ifndef __UTEST_ASSERT_H__
+#define __UTEST_ASSERT_H__
+
 #include "utest.h"
 #include <rtthread.h>
 
@@ -40,3 +53,5 @@ void _utest_assert(int cond, int32_t err_level, const char *file, int line, cons
     __FILE__, __LINE__, __func__, \
     "(default: " #a " not equal to " #b ")-" \
     "(user: " msg ")", ##__VA_ARGS__)
+
+#endif /* __UTEST_ASSERT_H__ */

@@ -12,6 +12,7 @@
 #define __UTEST_H__
 
 #include <rtthread.h>
+#include "utest_log.h"
 
 #define UTEST_SW_VERSION                  "0.0.1"
 
@@ -56,6 +57,9 @@ typedef struct utest_cmd *utest_cmd_t;
 */
 #define UTEST_ERR_LEVEL_FATAL (1u)
 
+#define UTEST_PASS (0u)
+#define UTEST_FAIL (1u)
+#define UTEST_SKIP (2u)
 
 #define ENABLE_UTEST_ASSERT_VERBOSE (2)
 

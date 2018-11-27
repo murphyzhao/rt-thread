@@ -12,23 +12,6 @@
 #include <rtthread.h>
 #include <finsh.h>
 
-#define UTEST_DEBUG
-
-#undef DBG_SECTION_NAME
-#undef DBG_LEVEL
-#undef DBG_COLOR
-#undef DBG_ENABLE
-
-#define DBG_ENABLE
-#define DBG_SECTION_NAME          "utest"
-#ifdef UTEST_DEBUG
-#define DBG_LEVEL                 DBG_LOG
-#else
-#define DBG_LEVEL                 DBG_INFO
-#endif
-#define DBG_COLOR
-#include <rtdbg.h>
-
 #if RT_CONSOLEBUF_SIZE < 256
 #error "RT_CONSOLEBUF_SIZE is less than 256!"
 #endif
@@ -188,9 +171,9 @@ void utest_fail(void)
 
 void _utest_assert(int cond, int32_t err_level, const char *file, int line, const char *msg)
 {
-    local_utest.err_level = err_level;
     if (!(cond))
     {
+        local_utest.err_level = err_level;
         LOG_E("[  FAILED  ] [assert] at %s:%d; [msg] %s", file, line, msg);
         utest_fail();
     }
