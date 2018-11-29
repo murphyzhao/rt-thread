@@ -17,22 +17,28 @@ static const char write_buf[] = "Hello RT-Thread!";
 
 static void test_dfs_mount(void)
 {
-    rt_err_t rst = RT_EOK;
-    rst = dfs_mount("sd0", "/", "elm", 0, 0);
-    LOG_D("dfs mount rst: %d", rst);
-	utest_assert_true(rst == 0, UTEST_ERR_LEVEL_FATAL, "mount failed");
+    // rt_err_t rst = RT_EOK;
+    // rst = dfs_mount("sd0", "/", "elm", 0, 0);
+    // LOG_D("dfs mount rst: %d", rst);
+	// utest_assert_true(rst == 0);
 }
 
 static void test_dfs_open(void)
 {
-    utest_assert_true(dfs_file_open(&fd, "/testfile.txt", O_CREAT | O_RDWR) == 0, UTEST_ERR_LEVEL_FATAL, "");
+    utest_assert_true(dfs_file_open(&fd, "/testfile.txt", O_CREAT | O_RDWR) == 0);
 }
 
 static rt_err_t test_write(void)
 {
     rt_err_t rst = RT_EOK;
 
-    utest_assert_true(dfs_file_lseek(&fd, 0) == 0, UTEST_ERR_LEVEL_LOW, "");
+    if (dfs_file_lseek(&fd, 0) != 0)
+    {
+        rst = -RT_ERROR;
+        LOG_D("lseek failed. %d", dfs_file_lseek(&fd, 0));
+        return rst;
+    }
+
     rst = dfs_file_write(&fd, write_buf, rt_strlen(write_buf));
     if (rst < 0)
     {
@@ -53,8 +59,7 @@ static rt_err_t test_write(void)
 
 static void test_dfs_write(void)
 {
-    utest_assert_true(test_write() == RT_EOK,
-        UTEST_ERR_LEVEL_LOW, "dfs write failed");
+    utest_assert_true(test_write() == RT_EOK);
 }
 
 static rt_err_t test_read(void)
@@ -66,6 +71,7 @@ static rt_err_t test_read(void)
     if (dfs_file_lseek(&fd, 0) != 0)
     {
         rst = -RT_ERROR;
+        LOG_D("lseek failed. %d", dfs_file_lseek(&fd, 0));
         return rst;
     }
 
@@ -81,23 +87,23 @@ static rt_err_t test_read(void)
 
     if (rt_strcmp(write_buf, read_buf))
     {
-        LOG_D("dfs read data err");
+        LOG_D("dfs read data err, readbuf:%s; rst:%d", read_buf, rst);
         rst = -RT_ERROR;
         return rst;
     }
+    rst = RT_EOK;
 
     return rst;
 }
 
 static void test_dfs_read(void)
 {
-    utest_assert_true(test_read() == RT_EOK,
-        UTEST_ERR_LEVEL_LOW, "dfs read failed");
+    utest_assert_true(test_read() == RT_EOK);
 }
 
 static void test_dfs_close(void)
 {
-    utest_assert_true(dfs_file_close(&fd) == 0, UTEST_ERR_LEVEL_LOW, "");
+    utest_assert_true(dfs_file_close(&fd) == 0);
 }
 
 static void test_dfs_mkdir(void)
@@ -105,19 +111,23 @@ static void test_dfs_mkdir(void)
 
 }
 
-static void test_main(void)
+static rt_err_t utest_init(void)
 {
-    utest_suite_init("components.dfs.test_main", RT_NULL, RT_NULL);
-
-    utest_register_to_suite(
-        utest_unit_add(test_dfs_mount),
-        utest_unit_add(test_dfs_open),
-        utest_unit_add(test_dfs_write),
-        utest_unit_add(test_dfs_read),
-        utest_unit_add(test_dfs_close),
-        utest_unit_add(test_dfs_mkdir)
-    );
-
-    utest_suite_run();
+    return RT_EOK;
 }
-UTEST_SUITE_EXPORT(test_main, "components.dfs_api.test_main", test_main);
+
+static rt_err_t utest_cleanup(void)
+{
+    return RT_EOK;
+}
+
+static void suite_runner(void)
+{
+    UTEST_UNIT_RUN(test_dfs_mount);
+    UTEST_UNIT_RUN(test_dfs_open);
+    UTEST_UNIT_RUN(test_dfs_write);
+    UTEST_UNIT_RUN(test_dfs_read);
+    UTEST_UNIT_RUN(test_dfs_close);
+    UTEST_UNIT_RUN(test_dfs_mkdir);
+}
+UTEST_SUITE_EXPORT(suite_runner, "components.dfs_api.test_main", utest_init, utest_cleanup);

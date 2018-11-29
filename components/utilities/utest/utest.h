@@ -16,90 +16,46 @@
 
 #define UTEST_SW_VERSION                  "0.0.1"
 
-struct utest_unit {
-    const char *name;
-    void (*test)(void);
-    void (*setup)(void);
-    void (*teardown)(void);
-    rt_uint32_t ops;
+enum utest_error
+{
+    UTEST_PASSED  = 0,
+    UTEST_FAILED  = 1,
+    UTEST_SKIPPED = 2
 };
-typedef struct utest_unit *utest_unit_t;
+typedef enum utest_error utest_err_e;
 
-struct utest_suite {
-    const char *name;
-    int (*init)(void);
-    int (*cleanup)(void);
-    const struct utest_unit *unit;
-    rt_uint32_t unit_size;
+struct utest
+{
+    utest_err_e error;
 };
-typedef struct utest_suite *utest_suite_t;
+typedef struct utest *utest_t;
 
-struct utest_cmd {
-    const char *name;
-    void (*cmd_func)(void);
-    const char *desc;
+struct utest_suite_export {
+    const char  *name;
+    rt_err_t   (*init)(void);
+    void       (*runner)(void);
+    rt_err_t   (*cleanup)(void);
 };
-typedef struct utest_cmd *utest_cmd_t;
+typedef struct utest_suite_export *utest_suite_export_t;
 
-#define TEST_ERR_PASS (0u)
-#define TEST_ERR_SKIP (1u)
-#define TEST_ERR_FAIL (2u)
+typedef void (*test_unit_func)(void);
+void utest_unit_run(test_unit_func func, const char *unit_func_name);
+utest_t utest_handle_get(void);
 
-/**
- * UTEST_ERR_LEVEL_LOW
- * Ordinary error: The test suite will continue to run others test units under the current test suite
-*/
-#define UTEST_ERR_LEVEL_LOW   (0u)
-/**
- * UTEST_ERR_LEVEL_FATAL
- * Fatal error: The test suite will end up running,
- * skipping all unexecuted test units under the current test suite
-*/
-#define UTEST_ERR_LEVEL_FATAL (1u)
+#define UTEST_NAME_MAX_LEN (128u)
 
-#define UTEST_PASS (0u)
-#define UTEST_FAIL (1u)
-#define UTEST_SKIP (2u)
-
-#define ENABLE_UTEST_ASSERT_VERBOSE (2)
-
-#define utest_suite_init(suite_name, init, cleanup)                            \
-    struct utest_suite _test_suite = {                                  \
-        suite_name, init, cleanup, RT_NULL                                     \
-    };
-
-#define utest_register_to_suite(...)                                           \
-    static const struct utest_unit _test_unit[] = {                            \
-        __VA_ARGS__, { 0 }                                                     \
-    };                                                                         \
-    _test_suite.unit = _test_unit;                                             \
-    _test_suite.unit_size = sizeof(_test_unit)/sizeof(struct utest_unit);      \
-    rt_kprintf("unit size: %d\n", _test_suite.unit_size);
-
-#define utest_unit_setup_teardown(fn, setup, teardown) {                       \
-    #fn, fn, setup, teardown, 0                                                \
-}
-
-#define UTEST_SUITE_EXPORT(test_main, suite_name, desc)                                            \
-    static void utest_cmd_##test_main(void)                                    \
-    {                                                                          \
-        test_main();                                                           \
-    }                                                                          \
-    RT_USED static const struct utest_cmd _utest_cmd_##test_main               \
+#define UTEST_SUITE_EXPORT(runner, name, init, cleanup)      \
+    RT_USED static const struct utest_suite_export _utest_suite                \
     SECTION("UtestCmdTab") =                                                   \
     {                                                                          \
-        suite_name,                                                            \
-        utest_cmd_##test_main,                                                 \
-        #desc                                                                  \
+        name,                                                            \
+        init,                                                            \
+        runner,                                                          \
+        cleanup                                                          \
     }
 
-#define utest_unit_add(fn)                                                     \
-    utest_unit_setup_teardown(fn, RT_NULL, RT_NULL)
-
-int utest_init(void);
-void _utest_suite_run(struct utest_suite *suite);
-
-#define utest_suite_run()                                                      \
-    _utest_suite_run((struct utest_suite *)&_test_suite)
+#define UTEST_UNIT_RUN(test_unit_func)                            \
+    utest_unit_run(test_unit_func, #test_unit_func);             \
+    if(utest_handle_get()->error != UTEST_PASSED) return;
 
 #endif
