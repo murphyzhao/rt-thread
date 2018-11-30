@@ -4,14 +4,6 @@
 #include <rtthread.h>
 #include "dfs_file.h"
 
-// static struct dfs_mount_tbl test_tbl = {
-//     .device_name = "sd0",
-//     .path = "/",
-//     .filesystemtype = "elm",
-//     .rwflag = 0,
-//     .data = RT_NULL
-// };
-
 static struct dfs_fd fd;
 static const char write_buf[] = "Hello RT-Thread!";
 
@@ -111,17 +103,17 @@ static void test_dfs_mkdir(void)
 
 }
 
-static rt_err_t utest_init(void)
+static rt_err_t utest_tc_init(void)
 {
     return RT_EOK;
 }
 
-static rt_err_t utest_cleanup(void)
+static rt_err_t utest_tc_cleanup(void)
 {
     return RT_EOK;
 }
 
-static void suite_runner(void)
+static void testcase(void)
 {
     UTEST_UNIT_RUN(test_dfs_mount);
     UTEST_UNIT_RUN(test_dfs_open);
@@ -130,4 +122,4 @@ static void suite_runner(void)
     UTEST_UNIT_RUN(test_dfs_close);
     UTEST_UNIT_RUN(test_dfs_mkdir);
 }
-UTEST_SUITE_EXPORT(suite_runner, "components.dfs_api.test_main", utest_init, utest_cleanup);
+UTEST_TC_EXPORT(testcase, "components.dfs_api.test_main", utest_tc_init, utest_tc_cleanup);
