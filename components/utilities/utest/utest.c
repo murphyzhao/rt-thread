@@ -12,6 +12,21 @@
 #include <rtthread.h>
 #include <finsh.h>
 
+#undef DBG_SECTION_NAME
+#undef DBG_LEVEL
+#undef DBG_COLOR
+#undef DBG_ENABLE
+
+#define DBG_ENABLE
+#define DBG_SECTION_NAME          "utest"
+#ifdef UTEST_DEBUG
+#define DBG_LEVEL                 DBG_LOG
+#else
+#define DBG_LEVEL                 DBG_INFO
+#endif
+#define DBG_COLOR
+#include <rtdbg.h>
+
 #if RT_CONSOLEBUF_SIZE < 256
 #error "RT_CONSOLEBUF_SIZE is less than 256!"
 #endif
@@ -42,7 +57,7 @@ int utest_init(void)
     tc_num = (utest_tc_export_t) &__rtatcmdtab_end - tc_table;
 #endif /* defined(__CC_ARM) */
 
-    LOG_D("[----------] total utest testcase num: (%d)", tc_num);
+    LOG_D("[          ] total utest testcase num: (%d)", tc_num);
     return tc_num;
 }
 INIT_COMPONENT_EXPORT(utest_init);
@@ -100,9 +115,9 @@ static void utest_run(const char *utest_name)
 {
     rt_size_t i = 0;
 
-    LOG_D("[----------] total utest testcase num: (%d)", tc_num);
+    LOG_D("[          ] total utest testcase num: (%d)", tc_num);
 
-    LOG_I("[==========] utest started");
+    LOG_I("[==========] [ utest    ] started");
     while(i < tc_num)
     {
         if (utest_name && rt_strcmp(utest_name, tc_table[i].name))
@@ -110,19 +125,32 @@ static void utest_run(const char *utest_name)
             i++;
             continue;
         }
-        LOG_I("[==========] testcase (%s) started", tc_table[i].name);
+
+        if (tc_table[i].init != RT_NULL)
+        {
+            tc_table[i].init();
+        }
+
+        LOG_I("[----------] [ testcase ] (%s) started", tc_table[i].name);
         tc_table[i].tc();
         if (local_utest.failed_num == 0)
         {
-            LOG_I("[  PASSED  ] testcase (%s) test finished", tc_table[i].name);
+            LOG_I("[  PASSED  ] [ result   ] testcase (%s)", tc_table[i].name);
         }
         else
         {
-            LOG_I("[  FAILED  ] testcase (%s) test finished", tc_table[i].name);
+            LOG_I("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
         }
+        LOG_I("[----------] [ testcase ] (%s) finished", tc_table[i].name);
+
+        if (tc_table[i].cleanup != RT_NULL)
+        {
+            tc_table[i].cleanup();
+        }
+
         i++;
     }
-    LOG_I("[==========] utest finished");
+    LOG_I("[==========] [ utest    ] finished");
 }
 
 static void utest_testcase_run(int argc, char** argv)
@@ -141,7 +169,7 @@ static void utest_testcase_run(int argc, char** argv)
     }
     else
     {
-        LOG_E("[$$$$$$$$$$] [run] error at (%s:%d)", __func__, __LINE__);
+        LOG_E("[  error   ] at (%s:%d), in param error.", __func__, __LINE__);
     }
 }
 MSH_CMD_EXPORT_ALIAS(utest_testcase_run, utest_run, utest_run [testcase name]);
@@ -153,7 +181,7 @@ utest_t utest_handle_get(void)
 
 void utest_unit_run(test_unit_func func, const char *unit_func_name)
 {
-    LOG_I("[==========] utest unit name: (%s)", unit_func_name);
+    // LOG_I("[==========] utest unit name: (%s)", unit_func_name);
     local_utest.error = UTEST_PASSED;
     local_utest.passed_num = 0;
     local_utest.failed_num = 0;
@@ -166,11 +194,11 @@ void utest_assert(int value, const char *file, int line, const char *func, const
     {
         local_utest.error = UTEST_FAILED;
         local_utest.failed_num ++;
-        LOG_E("[  ASSERT  ] at (%s); func: (%s:%d); msg: (%s)", file_basename(file), func, line, msg);
+        LOG_E("[  ASSERT  ] [ unit     ] at (%s); func: (%s:%d); msg: (%s)", file_basename(file), func, line, msg);
     }
     else
     {
-        LOG_D("[  PASSED  ] (%s:%d) is passed", func, line);
+        LOG_D("[    OK    ] [ unit     ] (%s:%d) is passed", func, line);
         local_utest.error = UTEST_PASSED;
         local_utest.passed_num ++;
     }

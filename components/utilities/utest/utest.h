@@ -41,6 +41,12 @@ struct utest_tc_export {
 typedef struct utest_tc_export *utest_tc_export_t;
 
 typedef void (*test_unit_func)(void);
+
+#define TC_LOG_I(...)  LOG_I(__VA_ARGS__)
+#define TC_LOG_D(...)  LOG_D(__VA_ARGS__)
+#define TC_LOG_E(...)  LOG_E(__VA_ARGS__)
+#define TC_LOG_W(...)  LOG_W(__VA_ARGS__)
+
 void utest_unit_run(test_unit_func func, const char *unit_func_name);
 utest_t utest_handle_get(void);
 
@@ -58,6 +64,6 @@ utest_t utest_handle_get(void);
 
 #define UTEST_UNIT_RUN(test_unit_func)                            \
     utest_unit_run(test_unit_func, #test_unit_func);             \
-    if(utest_handle_get()->error != UTEST_PASSED) return;
+    if(utest_handle_get()->failed_num != 0) return;
 
 #endif

@@ -19,7 +19,7 @@
 #undef DBG_ENABLE
 
 #define DBG_ENABLE
-#define DBG_SECTION_NAME          "utest"
+#define DBG_SECTION_NAME          "testcase"
 #ifdef UTEST_DEBUG
 #define DBG_LEVEL                 DBG_LOG
 #else
