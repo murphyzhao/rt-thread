@@ -12,12 +12,12 @@ static void test_dfs_mount(void)
     // rt_err_t rst = RT_EOK;
     // rst = dfs_mount("sd0", "/", "elm", 0, 0);
     // LOG_D("dfs mount rst: %d", rst);
-	// utest_assert_true(rst == 0);
+	// uassert_true(rst == 0);
 }
 
 static void test_dfs_open(void)
 {
-    utest_assert_true(dfs_file_open(&fd, "/testfile.txt", O_CREAT | O_RDWR) == 0);
+    uassert_true(dfs_file_open(&fd, "/testfile.txt", O_CREAT | O_RDWR) == 0);
 }
 
 static rt_err_t test_write(void)
@@ -51,7 +51,7 @@ static rt_err_t test_write(void)
 
 static void test_dfs_write(void)
 {
-    utest_assert_true(test_write() == RT_EOK);
+    uassert_true(test_write() == RT_EOK);
 }
 
 static rt_err_t test_read(void)
@@ -90,12 +90,12 @@ static rt_err_t test_read(void)
 
 static void test_dfs_read(void)
 {
-    utest_assert_true(test_read() == RT_EOK);
+    uassert_true(test_read() == RT_EOK);
 }
 
 static void test_dfs_close(void)
 {
-    utest_assert_true(dfs_file_close(&fd) == 0);
+    uassert_true(dfs_file_close(&fd) == 0);
 }
 
 static void test_dfs_mkdir(void)
@@ -115,6 +115,8 @@ static rt_err_t utest_tc_cleanup(void)
 
 static void testcase(void)
 {
+    TC_LOG_I("in testcase func...");
+
     UTEST_UNIT_RUN(test_dfs_mount);
     UTEST_UNIT_RUN(test_dfs_open);
     UTEST_UNIT_RUN(test_dfs_write);
@@ -122,4 +124,4 @@ static void testcase(void)
     UTEST_UNIT_RUN(test_dfs_close);
     UTEST_UNIT_RUN(test_dfs_mkdir);
 }
-UTEST_TC_EXPORT(testcase, "components.dfs_api.test_main", utest_tc_init, utest_tc_cleanup);
+UTEST_TC_EXPORT(testcase, "components.dfs.dfs_api_tc", utest_tc_init, utest_tc_cleanup);
