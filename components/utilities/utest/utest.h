@@ -27,16 +27,18 @@ typedef enum utest_error utest_err_e;
 struct utest
 {
     utest_err_e error;
+    uint32_t passed_num;
+    uint32_t failed_num;
 };
 typedef struct utest *utest_t;
 
-struct utest_suite_export {
+struct utest_tc_export {
     const char  *name;
     rt_err_t   (*init)(void);
-    void       (*runner)(void);
+    void       (*tc)(void);
     rt_err_t   (*cleanup)(void);
 };
-typedef struct utest_suite_export *utest_suite_export_t;
+typedef struct utest_tc_export *utest_tc_export_t;
 
 typedef void (*test_unit_func)(void);
 void utest_unit_run(test_unit_func func, const char *unit_func_name);
@@ -44,13 +46,13 @@ utest_t utest_handle_get(void);
 
 #define UTEST_NAME_MAX_LEN (128u)
 
-#define UTEST_SUITE_EXPORT(runner, name, init, cleanup)      \
-    RT_USED static const struct utest_suite_export _utest_suite                \
-    SECTION("UtestCmdTab") =                                                   \
+#define UTEST_TC_EXPORT(testcase, name, init, cleanup)      \
+    RT_USED static const struct utest_tc_export _utest_testcase                \
+    SECTION("UtestTcTab") =                                                   \
     {                                                                          \
         name,                                                            \
         init,                                                            \
-        runner,                                                          \
+        testcase,                                                          \
         cleanup                                                          \
     }
 
