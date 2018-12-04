@@ -1,0 +1,6 @@
+
+menu "testcases"
+
+source "$RTT_DIR/test/testcases/Kconfig"
+
+endmenu

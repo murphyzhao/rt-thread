@@ -3,6 +3,6 @@ from building import *
 cwd     = GetCurrentDir()
 src     = Glob('*.c')
 CPPPATH = [cwd]
-group   = DefineGroup('utest', src, depend = [], CPPPATH = CPPPATH)
+group   = DefineGroup('utest', src, depend = ['TC_USING_FS_STDLIB_TC'], CPPPATH = CPPPATH)
 
 Return('group')

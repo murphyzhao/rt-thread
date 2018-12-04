@@ -124,4 +124,4 @@ static void testcase(void)
     UTEST_UNIT_RUN(test_dfs_close);
     UTEST_UNIT_RUN(test_dfs_mkdir);
 }
-UTEST_TC_EXPORT(testcase, "components.dfs.dfs_api_tc", utest_tc_init, utest_tc_cleanup);
+UTEST_TC_EXPORT(testcase, "components.filesystem.dfs.dfs_api_tc", utest_tc_init, utest_tc_cleanup);

@@ -1,0 +1,32 @@
+config RT_USING_TESTCASE
+    bool "Enable testcase"
+    default n
+
+if RT_USING_TESTCASE
+
+    menu "utest selftest"
+        config TC_USING_UTEST_FAIL_TC
+            bool "Enable utest selftest for fail"
+            default n
+
+        config TC_USING_UTEST_PASS_TC
+            bool "Enable utest selftest for pass"
+            default n
+    endmenu
+
+    menu "filesystem test"
+        config TC_USING_FS_DFS_TC
+            bool "Enable filesystem test for dfs api"
+            default n
+            select RT_USING_DFS
+
+        config TC_USING_FS_STDLIB_TC
+            bool "Enable filesystem test for stdlib api"
+            default n
+
+        config TC_USING_FS_POSIX_TC
+            bool "Enable filesystem test for posix api"
+            default n
+    endmenu
+
+endif
