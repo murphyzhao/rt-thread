@@ -13,6 +13,7 @@
 #define RT_TICK_PER_SECOND 100
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
+#define RT_USING_IDLE_HOOK
 #define RT_IDEL_HOOK_LIST_SIZE 4
 #define IDLE_THREAD_STACK_SIZE 1024
 #define RT_USING_TIMER_SOFT
@@ -42,7 +43,7 @@
 #define RT_USING_DEVICE
 #define RT_USING_INTERRUPT_INFO
 #define RT_USING_CONSOLE
-#define RT_CONSOLEBUF_SIZE 128
+#define RT_CONSOLEBUF_SIZE 256
 #define RT_CONSOLE_DEVICE_NAME "uart0"
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_A
@@ -205,6 +206,9 @@
 #define LOG_TRACE_MAX_SESSION 16
 #define LOG_TRACE_USING_LEVEL_INFO
 
+/* testcases */
+
+
 /* RT-Thread online packages */
 
 /* IoT - internet of things */
@@ -248,6 +252,12 @@
 
 
 /* example package: hello */
+
+
+/* Privated Packages of RealThread */
+
+
+/* Network Utilities */
 
 #define SOC_VEXPRESS_A9
 #define RT_USING_UART0
