@@ -35,4 +35,4 @@ static void testcase(void)
 {
     UTEST_UNIT_RUN(test_assert_fail);
 }
-UTEST_TC_EXPORT(testcase, "utest_self_test.fail_test.fail_tc", utest_tc_init, utest_tc_cleanup);
+UTEST_TC_EXPORT(testcase, "utest_self_test.fail_test.fail_tc", utest_tc_init, utest_tc_cleanup, 10);

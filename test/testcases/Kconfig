@@ -8,10 +8,12 @@ if RT_USING_TESTCASE
         config TC_USING_UTEST_FAIL_TC
             bool "Enable utest selftest for fail"
             default n
+            select RT_USING_UTEST
 
         config TC_USING_UTEST_PASS_TC
             bool "Enable utest selftest for pass"
             default n
+            select RT_USING_UTEST
     endmenu
 
     menu "filesystem test"
@@ -19,14 +21,17 @@ if RT_USING_TESTCASE
             bool "Enable filesystem test for dfs api"
             default n
             select RT_USING_DFS
+            select RT_USING_UTEST
 
         config TC_USING_FS_STDLIB_TC
             bool "Enable filesystem test for stdlib api"
             default n
+            select RT_USING_UTEST
 
         config TC_USING_FS_POSIX_TC
             bool "Enable filesystem test for posix api"
             default n
+            select RT_USING_UTEST
     endmenu
 
 endif
