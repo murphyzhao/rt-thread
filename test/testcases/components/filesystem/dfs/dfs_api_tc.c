@@ -115,7 +115,7 @@ static rt_err_t utest_tc_cleanup(void)
 
 static void testcase(void)
 {
-    TC_LOG_I("in testcase func...");
+    LOG_I("in testcase func...");
 
     UTEST_UNIT_RUN(test_dfs_mount);
     UTEST_UNIT_RUN(test_dfs_open);
