@@ -13,6 +13,7 @@
 #define RT_TICK_PER_SECOND 100
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
+#define RT_USING_IDLE_HOOK
 #define RT_IDEL_HOOK_LIST_SIZE 4
 #define IDLE_THREAD_STACK_SIZE 1024
 #define RT_DEBUG
@@ -36,7 +37,7 @@
 
 #define RT_USING_DEVICE
 #define RT_USING_CONSOLE
-#define RT_CONSOLEBUF_SIZE 128
+#define RT_CONSOLEBUF_SIZE 256
 #define RT_CONSOLE_DEVICE_NAME "uart1"
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_M
@@ -65,6 +66,7 @@
 #define FINSH_CMD_SIZE 80
 #define FINSH_USING_MSH
 #define FINSH_USING_MSH_DEFAULT
+#define FINSH_USING_MSH_ONLY
 #define FINSH_ARG_MAX 10
 
 /* Device virtual file system */
@@ -95,6 +97,9 @@
 #define RT_USING_SERIAL
 #define RT_USING_PIN
 
+/* Using WiFi */
+
+
 /* Using USB */
 
 
@@ -123,9 +128,24 @@
 
 /* Utilities */
 
+#define RT_USING_UTEST
 
 /* ARM CMSIS */
 
+
+/* testcases */
+
+
+/* utest selftest */
+
+#define TC_USING_UTEST_FAIL_TC
+#define TC_USING_UTEST_PASS_TC
+
+/* filesystem test */
+
+#define TC_USING_FS_DFS_TC
+#define TC_USING_FS_STDLIB_TC
+#define TC_USING_FS_POSIX_TC
 
 /* RT-Thread online packages */
 
@@ -171,9 +191,14 @@
 
 /* example package: hello */
 
+
+/* Privated Packages of RealThread */
+
+
+/* Network Utilities */
+
 #define SOC_STM32F4
 #define RT_USING_UART1
 #define RT_USING_UART2
-#define RT_USING_UART3
 
 #endif

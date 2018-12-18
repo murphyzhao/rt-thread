@@ -15,6 +15,7 @@
 #define RT_TICK_PER_SECOND 1000
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
+#define RT_USING_IDLE_HOOK
 #define RT_IDEL_HOOK_LIST_SIZE 4
 #define IDLE_THREAD_STACK_SIZE 1024
 #define RT_DEBUG
@@ -38,7 +39,7 @@
 
 #define RT_USING_DEVICE
 #define RT_USING_CONSOLE
-#define RT_CONSOLEBUF_SIZE 128
+#define RT_CONSOLEBUF_SIZE 256
 #define RT_CONSOLE_DEVICE_NAME "uart1"
 #define ARCH_ARM
 #define ARCH_ARM_CORTEX_M
@@ -62,6 +63,10 @@
 #define FINSH_THREAD_PRIORITY 20
 #define FINSH_THREAD_STACK_SIZE 2048
 #define FINSH_CMD_SIZE 80
+#define FINSH_USING_MSH
+#define FINSH_USING_MSH_DEFAULT
+#define FINSH_USING_MSH_ONLY
+#define FINSH_ARG_MAX 10
 
 /* Device virtual file system */
 
@@ -76,8 +81,8 @@
 
 #define RT_DFS_ELM_CODE_PAGE 437
 #define RT_DFS_ELM_WORD_ACCESS
-#define RT_DFS_ELM_USE_LFN_0
-#define RT_DFS_ELM_USE_LFN 0
+#define RT_DFS_ELM_USE_LFN_3
+#define RT_DFS_ELM_USE_LFN 3
 #define RT_DFS_ELM_MAX_LFN 255
 #define RT_DFS_ELM_DRIVES 2
 #define RT_DFS_ELM_MAX_SECTOR_SIZE 4096
@@ -97,6 +102,9 @@
 #define RT_USING_SPI
 #define RT_USING_SFUD
 #define RT_SFUD_USING_SFDP
+
+/* Using WiFi */
+
 
 /* Using USB */
 
@@ -159,13 +167,20 @@
 /* Modbus master and slave stack */
 
 
+/* AT commands */
+
+
 /* VBUS(Virtual Software BUS) */
 
 
 /* Utilities */
 
+#define RT_USING_UTEST
 
 /* ARM CMSIS */
+
+
+/* testcases */
 
 
 /* RT-Thread online packages */
@@ -179,6 +194,9 @@
 
 
 /* Wiced WiFi */
+
+
+/* IoT Cloud */
 
 
 /* security packages */
@@ -204,8 +222,16 @@
 
 /* sample package */
 
+/* samples: kernel and components samples */
+
 
 /* example package: hello */
+
+
+/* Privated Packages of RealThread */
+
+
+/* Network Utilities */
 
 #define RT_USING_EXT_SDRAM
 #define RT_USING_UART1
@@ -213,5 +239,10 @@
 #define RT_USING_UART3
 #define RT_USING_SPI5
 #define RT_RTC_NAME "rtc"
+#define TC_USING_FS_POSIX_TC
+#define TC_USING_UTEST_FAIL_TC
+#define TC_USING_UTEST_PASS_TC
+#define TC_USING_FS_DFS_TC
+#define TC_USING_FS_STDLIB_TC
 
 #endif

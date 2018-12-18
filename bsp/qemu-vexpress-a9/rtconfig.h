@@ -123,6 +123,7 @@
 #define RT_SFUD_USING_SFDP
 #define RT_SFUD_USING_FLASH_INFO_TABLE
 #define RT_USING_WDT
+#define RT_USING_AUDIO
 
 /* Using WiFi */
 
@@ -205,9 +206,21 @@
 #define RT_USING_LOGTRACE
 #define LOG_TRACE_MAX_SESSION 16
 #define LOG_TRACE_USING_LEVEL_INFO
+#define RT_USING_UTEST
 
 /* testcases */
 
+
+/* utest selftest */
+
+#define TC_USING_UTEST_FAIL_TC
+#define TC_USING_UTEST_PASS_TC
+
+/* filesystem test */
+
+#define TC_USING_FS_DFS_TC
+#define TC_USING_FS_STDLIB_TC
+#define TC_USING_FS_POSIX_TC
 
 /* RT-Thread online packages */
 
@@ -263,5 +276,6 @@
 #define RT_USING_UART0
 #define RT_USING_UART1
 #define BSP_DRV_EMAC
+#define BSP_DRV_AUDIO
 
 #endif

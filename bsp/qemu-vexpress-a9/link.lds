@@ -11,7 +11,7 @@ SECTIONS
         *(.text)
         *(.text.*)
 
-        /* section information for finsh shell */
+        /* section information for utest */
         . = ALIGN(4);
         __rt_utest_tc_tab_start = .;
         KEEP(*(UtestTcTab))

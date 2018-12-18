@@ -74,42 +74,24 @@ static void utest_tc_list(void)
         LOG_I("[testcase name]:%s; [run timeout]:%d", tc_table[i].name, tc_table[i].run_timeout);
     }
 }
-MSH_CMD_EXPORT_ALIAS(utest_tc_list, utest_tc_list, output all utest testcase);
+MSH_CMD_EXPORT_ALIAS(utest_tc_list, utest_list, output all utest testcase);
 
-static char *file_basename(const char *file)
+static const char *file_basename(const char *file)
 {
-    char *ptr = RT_NULL;
+    char *end_ptr = RT_NULL;
     char *rst = RT_NULL;
-    char *file_bak = rt_strdup(file);
-    uint8_t len = 0;
-    if ((ptr = strrchr(file_bak, '\\')) != RT_NULL || (ptr = strrchr(file_bak, '/')) != RT_NULL)
+
+    if (!((end_ptr = strrchr(file, '\\')) != RT_NULL || \
+        (end_ptr = strrchr(file, '/')) != RT_NULL) || \
+        (rt_strlen(file) < 2))
     {
-        rst = ptr;
+        rst = (char *)file;
     }
     else
     {
-        rst = file_bak;
+        rst = (char *)(end_ptr + 1);
     }
-
-    len = rst - file_bak;
-    if (rst != file)
-    {
-        file_bak[len] = '\0';
-
-        if ((ptr = strrchr(file_bak, '\\')) != RT_NULL || (ptr = strrchr(file_bak, '/')) != RT_NULL)
-        {
-            rst = ptr;
-        }
-        else
-        {
-            rst = file_bak;
-        }
-        len = rst - file_bak;
-    }
-
-    rt_free(file_bak);
-    len = len != 0? len + 1 : len;
-    return (char *)(file + len);
+    return (const char *)rst;
 }
 
 static void utest_run(const char *utest_name)
@@ -125,27 +107,44 @@ static void utest_run(const char *utest_name)
             continue;
         }
 
+        LOG_I("[----------] [ testcase ] (%s) started", tc_table[i].name);
         if (tc_table[i].init != RT_NULL)
         {
-            tc_table[i].init();
+            if (tc_table[i].init() != RT_EOK)
+            {
+                LOG_I("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
+                goto __tc_continue;
+            }
         }
 
-        LOG_I("[----------] [ testcase ] (%s) started", tc_table[i].name);
-        tc_table[i].tc();
-        if (local_utest.failed_num == 0)
+        if (tc_table[i].tc != RT_NULL)
         {
-            LOG_I("[  PASSED  ] [ result   ] testcase (%s)", tc_table[i].name);
+            tc_table[i].tc();
+            if (local_utest.failed_num == 0)
+            {
+                LOG_I("[  PASSED  ] [ result   ] testcase (%s)", tc_table[i].name);
+            }
+            else
+            {
+                LOG_I("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
+            }
         }
         else
         {
             LOG_I("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
         }
-        LOG_I("[----------] [ testcase ] (%s) finished", tc_table[i].name);
 
         if (tc_table[i].cleanup != RT_NULL)
         {
-            tc_table[i].cleanup();
+            if (tc_table[i].cleanup() != RT_EOK)
+            {
+                LOG_I("[  FAILED  ] [ result   ] testcase (%s)", tc_table[i].name);
+                goto __tc_continue;
+            }
         }
+
+__tc_continue:
+        LOG_I("[----------] [ testcase ] (%s) finished", tc_table[i].name);
 
         i++;
     }
@@ -184,7 +183,11 @@ void utest_unit_run(test_unit_func func, const char *unit_func_name)
     local_utest.error = UTEST_PASSED;
     local_utest.passed_num = 0;
     local_utest.failed_num = 0;
-    func();
+
+    if (func != RT_NULL)
+    {
+        func();
+    }
 }
 
 void utest_assert(int value, const char *file, int line, const char *func, const char *msg)
