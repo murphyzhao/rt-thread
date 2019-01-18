@@ -140,12 +140,6 @@ int stm32_flash_write(rt_uint32_t addr, const uint8_t *buf, size_t size)
         return -RT_EINVAL;
     }
 
-    if(size % 8 != 0)
-    {
-        LOG_E("write size must be 8-byte alignment");
-        return -RT_EINVAL;
-    }
-
     HAL_FLASH_Unlock();
 
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGSERR);
@@ -168,6 +162,7 @@ int stm32_flash_write(rt_uint32_t addr, const uint8_t *buf, size_t size)
         }
         else
         {
+            
             for (j = 0; j < 8; j++, i++)
             {
                 temp_data = *buf;
