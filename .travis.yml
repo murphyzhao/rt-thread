@@ -27,7 +27,12 @@ env:
 stage: compile
 script: scons -C bsp/$RTT_BSP
 
+# python tools/autotest.py
 jobs:
   include:
     - stage: AutoTest
-      script: python tools/autotest.py
+      env: none
+      rvm: 1
+      script: false
+  allow_failures:
+    - rvm: 2
