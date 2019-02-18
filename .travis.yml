@@ -23,22 +23,11 @@ env:
   - RTT_BSP='qemu-vexpress-a9' RTT_TOOL_CHAIN='sourcery-arm' 
   - RTT_BSP='stm32f429-apollo' RTT_TOOL_CHAIN='sourcery-arm' 
   - RTT_BSP='stm32/stm32f407-st-discovery' RTT_TOOL_CHAIN='sourcery-arm'
-  - _AutoTest='Auto test engine for RT-Thread'
 
-stage: build
+stage: compile
 script: scons -C bsp/$RTT_BSP
-
-matrix:
-  allow_failures:
-    - env: _AutoTest='Auto test engine for RT-Thread'
 
 jobs:
   include:
-    - stage: compile
-      script: python tools/build-A.py
-    - stage: compile
-      env:
-        - _AutoTest='Auto test engine for RT-Thread'
-      script: python tools/build-B.py
     - stage: AutoTest
       script: python tools/autotest.py
