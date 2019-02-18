@@ -18,14 +18,19 @@ before_script:
   - export RTT_ROOT=`pwd`
   - "[ x$RTT_CC == x ] && export RTT_CC='gcc' || true"
 
+env:
+#  - RTT_BSP='simulator' RTT_CC='clang-analyze' RTT_EXEC_PATH=/usr/share/clang/scan-build
+  - RTT_BSP='qemu-vexpress-a9' RTT_TOOL_CHAIN='sourcery-arm' 
+  - RTT_BSP='stm32f429-apollo' RTT_TOOL_CHAIN='sourcery-arm' 
+  - RTT_BSP='stm32/stm32f407-st-discovery' RTT_TOOL_CHAIN='sourcery-arm'
+
+stage: build
+script: scons -C bsp/$RTT_BSP
+
 jobs:
   include:
     - stage: compile
-      env:
-        - RTT_BSP='qemu-vexpress-a9' RTT_TOOL_CHAIN='sourcery-arm' 
-        - RTT_BSP='stm32f429-apollo' RTT_TOOL_CHAIN='sourcery-arm' 
-        - RTT_BSP='stm32/stm32f407-st-discovery' RTT_TOOL_CHAIN='sourcery-arm'
-      script: scons -C bsp/$RTT_BSP
+      script: python tools/build-A.py $RTT_BSP $RTT_TOOL_CHAIN
     - # stage name not required, will continue to use `test`
       script: python tools/build-B.py $RTT_BSP $RTT_TOOL_CHAIN
     - stage: AutoTest
