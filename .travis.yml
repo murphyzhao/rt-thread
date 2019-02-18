@@ -27,11 +27,17 @@ env:
 stage: build
 script: scons -C bsp/$RTT_BSP
 
+matrix:
+  allow_failures:
+    - env: _AutoTest='Auto test engine for RT-Thread'
+
 jobs:
   include:
     - stage: compile
-      script: python tools/build-A.py $RTT_BSP $RTT_TOOL_CHAIN
-    - # stage name not required, will continue to use `test`
-      script: python tools/build-B.py $RTT_BSP $RTT_TOOL_CHAIN
+      script: python tools/build-A.py
+    - stage: compile
+      env:
+        - _AutoTest='Auto test engine for RT-Thread'
+      script: python tools/build-B.py
     - stage: AutoTest
-      script: python tools/autotest.py $RTT_BSP $RTT_TOOL_CHAIN
+      script: python tools/autotest.py
