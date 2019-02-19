@@ -3,6 +3,8 @@ language: c
 notifications:
   email: false
 
+sudo: true
+
 before_install: 
   - python -m pip install --upgrade pip
   - pip install aliyun-iot-linkkit==1.0.0
