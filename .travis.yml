@@ -3,6 +3,12 @@ language: c
 notifications:
   email: false
 
+before_install: 
+  - pip install aliyun-iot-linkkit==1.00.0
+  - pip install paho-mqtt==1.4.0
+
+install: true
+
 before_script:
 # travis has changed to 64-bit and we require 32-bit compatibility libraries
   - sudo apt-get update
@@ -33,6 +39,6 @@ jobs:
     - stage: AutoTest
       env: none
       rvm: 1
-      script: false
+      script: python auto_test_pub.py
   allow_failures:
     - rvm: 2
