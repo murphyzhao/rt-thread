@@ -6,7 +6,7 @@
 * Add support for 64-bit processors;
 * When the thread is running on CPU, the state of this thread is changed to RUNNING stat instead of READY state in previous version;
 
-## Components
+## Components## Components## Components## Components
 
 * When formatting the file system, adds FM_SFD option to create a volume in SFD format for FatFs; (HubretXie)
 * Add file system handle pointer in `struct dfs_fd' structure;
