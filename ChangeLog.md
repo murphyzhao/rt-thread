@@ -1119,3 +1119,4 @@ a4d661dcf1: 修正dfs_elm.c中一处内存泄露，并且在mount fatfs失败时
 43228aeb9c: 修正list_tcps问题：ipaddr_ntoa不是可重入的函数。
 3de4b92a68: 修正AT91SAM9260分支中PHY link状态错误的问题。
 1abaa0492d
+autotest
