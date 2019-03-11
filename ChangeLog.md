@@ -1,6 +1,7 @@
 # RT-Thread v4.0.0 Change Log
 
 ## Kernel
+## Kernel
 
 * Add SMP support;
 * Add support for 64-bit processors;
