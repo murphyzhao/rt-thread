@@ -59,10 +59,6 @@ So far, the RT-Thread scons building system support the command line compile or 
 
 In SConstruct file:
 
-```RTT_ROOT``` This variable is the root directory of RT-Thread RTOS. If you build the porting in the bsp directory, you can use the default setting. Also, you can set the root directory in ```RTT_ROOT``` environment variable and not modify SConstruct files.
-
-When you set these variables correctly, you can use command:
-
     scons
 
 under BSP directory to simplely compile RT-Thread RTOS.
