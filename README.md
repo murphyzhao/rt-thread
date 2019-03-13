@@ -48,10 +48,6 @@ Since 9th of September 2018, PRs submitted by the community may be merged into t
 RT-Thread RTOS uses [scons](http://www.scons.org) as building system. Therefore, please install scons and Python 2.7 firstly. 
 So far, the RT-Thread scons building system support the command line compile or generate some IDE's project. There are some option varaibles in the scons building script (rtconfig.py):
 
-* ```CROSS_TOOL``` the compiler which you want to use, gcc/keil/iar. 
-* ```EXEC_PATH``` the path of compiler. 
-
-In SConstruct file:
 
     scons
 
