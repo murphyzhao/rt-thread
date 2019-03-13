@@ -13,7 +13,7 @@ RT-Thread is an open source IoT operating system from China, which has strong sc
 
 ## Overview ##
 
-RT-Thread RTOS like a traditional real-time operating system. The kernel has real-time multi-task scheduling, semaphore, mutex, mail box, message queue, signal etc. However, it has three different things:
+s three different things:
 
 The device driver is more like a driver framework, UART, IIC, SPI, SDIO, USB device/host, EMAC, MTD NAND etc. The developer can easily add low level driver and board configuration, then combined with the upper framework, he/she can use lots of features.
 
