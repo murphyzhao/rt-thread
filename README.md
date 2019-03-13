@@ -25,7 +25,6 @@ The Dyanmic Module, formerly named as User Applicaion (UA) is a dyanmic loaded m
 
 RT-Thread RTOS can support many architectures:
 
-* ARM Cortex-M0
 * ARM Cortex-M3/M4/7
 * ARM Cortex-R4
 * ARM Cortex-A8/A9
